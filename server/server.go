@@ -4,6 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/iriskin77/testgo/src/handlers"
+	"github.com/iriskin77/testgo/src/repository"
+	"github.com/iriskin77/testgo/src/services"
 	"github.com/iriskin77/testgo/storage"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -37,7 +40,7 @@ func (s *APIServer) RunServer() error {
 
 	// Инициализруем подключение к БД
 
-	_, err := storage.NewPostgresDB(storage.ConfigDB{
+	db, err := storage.NewPostgresDB(storage.ConfigDB{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
@@ -52,15 +55,19 @@ func (s *APIServer) RunServer() error {
 
 	logrus.Info("db has been initialized")
 
+	repo := repository.NewRepository(db) // возвращает репозиторий (struct) Repository с методами для БД (CreateUser...)
+
+	service := services.NewService(repo) // возвращает сервис (struct) Service с методами для БД (CreateUser...)
+
+	handlers := handlers.NewHandler(service) // возвращает хэндлеры (struct) Handler
+
+	handlers.RegisterFileHandlers(s.router)
+
 	return http.ListenAndServe(s.serverConfig.BindAddr, s.router)
 
 }
 
 func initConfig() error {
-	//path := filepath.Base("config.yml")
-	//abs_path, _ := filepath.Abs(path)
-	//p := "/home/abc/Рабочий стол/welbexfile/configs"
-	//abs_path := filepath.Base("configs")
 	viper.AddConfigPath("/home/abc/Рабочий стол/welbexfile/configs")
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()

@@ -1,4 +1,4 @@
-package repository
+package file_repository
 
 import (
 	"github.com/iriskin77/testgo/models"

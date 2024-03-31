@@ -1,4 +1,4 @@
-package file_service
+package services
 
 import (
 	"github.com/iriskin77/testgo/models"
@@ -15,8 +15,9 @@ func NewFileService(repo repository.File) *ServiceFile {
 	return &ServiceFile{repo: repo}
 }
 
-func (s *ServiceFile) UploadFile(*models.File) int {
-	return 1
+func (s *ServiceFile) UploadFile(file *models.File) int {
+	fileId := s.repo.UploadFile(file)
+	return fileId
 }
 
 func (s *ServiceFile) DownloadFile(id int) error {

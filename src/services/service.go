@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/iriskin77/goapiserver/models"
-	"github.com/iriskin77/goapiserver/repository"
+	"github.com/iriskin77/testgo/models"
+	"github.com/iriskin77/testgo/src/repository"
 )
 
 type File interface {
@@ -28,6 +28,6 @@ type Service struct {
 
 func NewService(repository *repository.Repository) *Service {
 	return &Service{
-		File: file_service.NewFileService(repository.Users),
+		File: NewFileService(repository.File),
 	}
 }

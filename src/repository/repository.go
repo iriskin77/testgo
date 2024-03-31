@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/iriskin77/testgo/models"
-	"github.com/iriskin77/testgo/src/repository/file_repository"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -29,5 +28,5 @@ type Repository struct {
 // Поскольку репозиторий должен работать с БД, то
 func NewRepository(db *sqlx.DB) *Repository {
 	// В файле репозитория инициализируем наш репозиторий в конструкторе
-	return &Repository{File: file_repository.NewFileDB(db)}
+	return &Repository{File: NewFileDB(db)}
 }

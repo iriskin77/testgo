@@ -31,6 +31,6 @@ CREATE TABLE cargos (
 CREATE TABLE file (
     id serial unique not null,
     name varchar(255) not null,
-    path varchar(2048) not null,
+    file varchar(2048) not null,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )

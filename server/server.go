@@ -62,6 +62,7 @@ func (s *APIServer) RunServer() error {
 	handlers := handlers.NewHandler(service) // возвращает хэндлеры (struct) Handler
 
 	handlers.RegisterFileHandlers(s.router)
+	handlers.RegisterLocationsHandler(s.router)
 
 	return http.ListenAndServe(s.serverConfig.BindAddr, s.router)
 

@@ -14,6 +14,7 @@ type Car interface {
 }
 
 type Location interface {
+	InsertFileToDB(fileId int)
 }
 
 type Cargo interface {
@@ -21,6 +22,9 @@ type Cargo interface {
 
 type Service struct {
 	File
+	Location
+	Car
+	Cargo
 }
 
 // Конструктор сервисов. Сервисы будут передавать данные из хэндлера ниже, на уровень репозитория, поэтому нужен указатель

@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -57,18 +58,25 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	fileExt := filepath.Ext(pathFile)
 
 	// Проверяем формат файла
-	if fileExt != ".json" {
-		http.Error(response, "File should be json", http.StatusForbidden)
+	if fileExt != ".csv" {
+		http.Error(response, "File should be csv", http.StatusForbidden)
 		return
 	}
 
-	// Создаем файл
-	dst, err := os.Create(fmt.Sprintf("./uploads/%s", handler.Filename))
+	openedFile, err := os.OpenFile(pathFile, os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		http.Error(response, err.Error(), http.StatusInternalServerError)
+		response.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(response).Encode("something went wrong(OpenedFile)")
 		return
 	}
-	defer dst.Close()
+	defer openedFile.Close()
+
+	_, err = io.Copy(openedFile, file)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(response).Encode("something went wrong (Copy)")
+		return
+	}
 
 	// Если файла с таким именем нет, то сохраняем файл в БД
 	newFile := &models.File{
@@ -114,7 +122,7 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 
 	defer Openfile.Close() //Close after function return
 
-	response.Header().Set("Content-Type", "application/json")
+	response.Header().Set("Content-Type", "application/csv")
 	response.Header().Set("Content-Disposition", "attachment; filename="+file.Name)
 
 	http.ServeFile(response, request, file.File_path)

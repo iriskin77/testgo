@@ -6,19 +6,20 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/models"
 )
 
 const (
-	file         = "/file"
-	downloadFile = "file/:id"
+	file         = "/files"
+	filedownload = "/files/{id}"
 )
 
 func (h *Handler) RegisterFileHandlers(router *mux.Router) {
 	router.HandleFunc(file, h.UploadFile).Methods("POST")
-	router.HandleFunc(downloadFile, h.DownloadFile).Methods("GET")
+	router.HandleFunc(filedownload, h.DownloadFile).Methods("GET")
 
 }
 
@@ -53,10 +54,26 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 		return
 	}
 
+	fileExt := filepath.Ext(pathFile)
+
+	// Проверяем формат файла
+	if fileExt != ".json" {
+		http.Error(response, "File should be json", http.StatusForbidden)
+		return
+	}
+
+	// Создаем файл
+	dst, err := os.Create(fmt.Sprintf("./uploads/%s", handler.Filename))
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
+
 	// Если файла с таким именем нет, то сохраняем файл в БД
 	newFile := &models.File{
-		Name: handler.Filename,
-		File: pathFile,
+		Name:      handler.Filename,
+		File_path: pathFile,
 	}
 
 	fileId := h.services.File.UploadFile(newFile)
@@ -71,5 +88,35 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 }
 
 func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Request) {
+
+	vars := mux.Vars(request)
+	id := vars["id"]
+
+	fileId, err := strconv.Atoi(id)
+
+	if err != nil {
+		panic(err)
+	}
+
+	file, err := h.services.File.DownloadFile(fileId)
+
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError) //return 404 if file is not found
+		return
+	}
+
+	Openfile, err := os.Open(file.File_path) //Open the file to be downloaded later
+
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusNotFound) //return 404 if file is not found
+		return
+	}
+
+	defer Openfile.Close() //Close after function return
+
+	response.Header().Set("Content-Type", "application/json")
+	response.Header().Set("Content-Disposition", "attachment; filename="+file.Name)
+
+	http.ServeFile(response, request, file.File_path)
 
 }

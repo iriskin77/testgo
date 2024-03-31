@@ -8,7 +8,7 @@ import (
 // Интерфейсы называются в зависимости от участков доменной зоны, за которую они отвечают
 type File interface {
 	UploadFile(*models.File) int
-	DownloadFile(id int) error
+	DownloadFile(id int) (*models.File, error)
 }
 
 type Car interface {

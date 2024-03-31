@@ -20,6 +20,12 @@ func (s *ServiceFile) UploadFile(file *models.File) int {
 	return fileId
 }
 
-func (s *ServiceFile) DownloadFile(id int) error {
-	return nil
+func (s *ServiceFile) DownloadFile(id int) (*models.File, error) {
+	file, err := s.repo.DownloadFile(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
 }

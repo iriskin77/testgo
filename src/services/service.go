@@ -7,7 +7,7 @@ import (
 
 type File interface {
 	UploadFile(*models.File) int
-	DownloadFile(id int) error
+	DownloadFile(id int) (*models.File, error)
 }
 
 type Car interface {

@@ -21,8 +21,8 @@ func NewFileDB(db *sqlx.DB) *FileDB {
 
 func (f *FileDB) UploadFile(file *models.File) int {
 	var id int
-	query := fmt.Sprintf("INSERT INTO %s (name, file) VALUES ($1, $2) RETURNING id", filesTable)
-	row := f.db.QueryRow(query, file.Name, file.File)
+	query := fmt.Sprintf("INSERT INTO %s (name, file_path) VALUES ($1, $2) RETURNING id", filesTable)
+	row := f.db.QueryRow(query, file.Name, file.File_path)
 	if err := row.Scan(&id); err != nil {
 		return 0
 	}
@@ -30,6 +30,13 @@ func (f *FileDB) UploadFile(file *models.File) int {
 	return id
 }
 
-func (f *FileDB) DownloadFile(id int) error {
-	return nil
+func (f *FileDB) DownloadFile(id int) (*models.File, error) {
+
+	var fileById models.File
+
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", filesTable)
+	err := f.db.Get(&fileById, query, id)
+
+	return &fileById, err
+
 }

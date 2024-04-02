@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -40,7 +41,9 @@ func (s *APIServer) RunServer() error {
 
 	// Инициализруем подключение к БД
 
-	db, err := storage.NewPostgresDB(storage.ConfigDB{
+	ctx := context.Background()
+
+	db, err := storage.NewPostgresDB(ctx, storage.ConfigDB{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),

@@ -1,21 +1,25 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/iriskin77/testgo/models"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // Интерфейсы называются в зависимости от участков доменной зоны, за которую они отвечают
 type File interface {
-	UploadFile(*models.File) int
-	DownloadFile(id int) (*models.File, error)
+	UploadFile(ctx context.Context, file *models.File) (int, error)
+	DownloadFile(ctx context.Context, id int) (*models.File, error)
 }
 
 type Car interface {
 }
 
 type Location interface {
-	InsertFileToDB(fileId int)
+	CreateLocation(ctx context.Context, location *models.Location) (int, error)
+	GetLocationById(ctx context.Context, id int) (*models.Location, error)
+	GetLocationsList(ctx context.Context) ([]models.Location, error)
 }
 
 type Cargo interface {
@@ -30,8 +34,9 @@ type Repository struct {
 
 // Конструктор сервисов
 // Поскольку репозиторий должен работать с БД, то
-func NewRepository(db *sqlx.DB) *Repository {
+func NewRepository(db *pgxpool.Pool) *Repository {
 	// В файле репозитория инициализируем наш репозиторий в конструкторе
 	return &Repository{File: NewFileDB(db),
-		Location: NewLocationDB(db)}
+		Location: NewLocationDB(db),
+	}
 }

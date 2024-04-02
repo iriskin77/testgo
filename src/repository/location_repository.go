@@ -1,49 +1,60 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/iriskin77/testgo/models"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
-	locationsTable = "location"
+	locationsTable = "locations"
 )
 
 type LocationDB struct {
-	db *sqlx.DB
+	db *pgxpool.Pool
 }
 
-func NewLocationDB(db *sqlx.DB) *LocationDB {
+func NewLocationDB(db *pgxpool.Pool) *LocationDB {
 	return &LocationDB{db: db}
 }
 
-func (l *LocationDB) InsertFileToDB(fileId int) {
+func (lc *LocationDB) CreateLocation(ctx context.Context, location *models.Location) (int, error) {
 
-	var fileById models.File
+	var id int
 
-	query := fmt.Sprintf("SELECT * FROM file WHERE id = 2")
-	err := l.db.Get(&fileById, query, fileId)
+	query := fmt.Sprintf("INSERT INTO %s (city, state, zip, latitude, longitude) VALUES ($1, $2, $3, $4, $5) RETURNING id", locationsTable)
 
-	queryq := fmt.Sprintf("COPY persons(zip, latitude, longitude, city, state) FROM '/home/abc/Рабочий стол/uszips.csv' DELIMITER ',' CSV HEADER;")
-	_, err = l.db.Exec(queryq)
-
-	if err != nil {
-		fmt.Println(err)
+	if err := lc.db.QueryRow(ctx, query, location.City, location.State, location.Zip, location.Latitude, location.Longitude).Scan(&id); err != nil {
+		return 0, err
 	}
 
-	return
+	return id, nil
 
 }
 
-// city VARCHAR(255) NOT NULL,
-//     state VARCHAR(255) NOT NULL,
-//     zip INT NOT NULL,
-//     latitude FLOAT NOT NULL,
-//     longitude FLOAT NOT NULL,
+func (lc *LocationDB) GetLocationById(ctx context.Context, id int) (*models.Location, error) {
 
-// COPY persons(first_name, last_name, dob, email)
-// FROM 'C:\sampledb\persons.csv'
-// DELIMITER ','
-// CSV HEADER;
+	var locationById models.Location
+
+	query := fmt.Sprintf("SELECT id, city, state, zip, latitude, longitude, created_at FROM %s WHERE id = $1", locationsTable)
+
+	if err := lc.db.QueryRow(ctx, query, id).Scan(
+		&locationById.Id,
+		&locationById.City,
+		&locationById.State,
+		&locationById.Zip,
+		&locationById.Latitude,
+		&locationById.Longitude,
+		&locationById.Created_at); err != nil {
+		return &locationById, err
+	}
+
+	return &locationById, nil
+
+}
+
+func (lc *LocationDB) GetLocationsList(ctx context.Context) ([]models.Location, error) {
+	return nil, nil
+}

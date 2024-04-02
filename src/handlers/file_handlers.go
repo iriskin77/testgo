@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/models"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -21,7 +23,6 @@ const (
 func (h *Handler) RegisterFileHandlers(router *mux.Router) {
 	router.HandleFunc(file, h.UploadFile).Methods("POST")
 	router.HandleFunc(filedownload, h.DownloadFile).Methods("GET")
-
 }
 
 func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request) {
@@ -84,7 +85,11 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 		File_path: pathFile,
 	}
 
-	fileId := h.services.File.UploadFile(newFile)
+	fileId, err := h.services.File.UploadFile(context.Background(), newFile)
+
+	if err != nil {
+		logrus.Info("h.services.File.UploadFile(context.Background()", err.Error())
+	}
 
 	if id, err := json.Marshal(fileId); err != nil {
 		http.Error(response, "Wrong", http.StatusInternalServerError)
@@ -106,7 +111,7 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 		panic(err)
 	}
 
-	file, err := h.services.File.DownloadFile(fileId)
+	file, err := h.services.File.DownloadFile(context.Background(), fileId)
 
 	if err != nil {
 		http.Error(response, err.Error(), http.StatusInternalServerError) //return 404 if file is not found

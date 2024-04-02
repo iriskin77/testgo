@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/iriskin77/testgo/models"
 	"github.com/iriskin77/testgo/src/repository"
 )
@@ -15,13 +17,13 @@ func NewFileService(repo repository.File) *ServiceFile {
 	return &ServiceFile{repo: repo}
 }
 
-func (s *ServiceFile) UploadFile(file *models.File) int {
-	fileId := s.repo.UploadFile(file)
-	return fileId
+func (s *ServiceFile) UploadFile(ctx context.Context, file *models.File) (int, error) {
+	fileId, _ := s.repo.UploadFile(ctx, file)
+	return fileId, nil
 }
 
-func (s *ServiceFile) DownloadFile(id int) (*models.File, error) {
-	file, err := s.repo.DownloadFile(id)
+func (s *ServiceFile) DownloadFile(ctx context.Context, id int) (*models.File, error) {
+	file, err := s.repo.DownloadFile(ctx, id)
 
 	if err != nil {
 		return nil, err

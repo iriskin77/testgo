@@ -1,42 +1,48 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/iriskin77/testgo/models"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
-	filesTable = "file"
+	filesTable    = "file"
+	locationTable = "locations"
 )
 
 type FileDB struct {
-	db *sqlx.DB
+	db *pgxpool.Pool
 }
 
-func NewFileDB(db *sqlx.DB) *FileDB {
+func NewFileDB(db *pgxpool.Pool) *FileDB {
 	return &FileDB{db: db}
 }
 
-func (f *FileDB) UploadFile(file *models.File) int {
+func (f *FileDB) UploadFile(ctx context.Context, file *models.File) (int, error) {
 	var id int
+
 	query := fmt.Sprintf("INSERT INTO %s (name, file_path) VALUES ($1, $2) RETURNING id", filesTable)
-	row := f.db.QueryRow(query, file.Name, file.File_path)
-	if err := row.Scan(&id); err != nil {
-		return 0
+	if err := f.db.QueryRow(ctx, query, file.Name, file.File_path).Scan(&id); err != nil {
+		return 0, err
 	}
 
-	return id
+	return id, nil
 }
 
-func (f *FileDB) DownloadFile(id int) (*models.File, error) {
+func (f *FileDB) DownloadFile(ctx context.Context, id int) (*models.File, error) {
 
 	var fileById models.File
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", filesTable)
-	err := f.db.Get(&fileById, query, id)
 
-	return &fileById, err
+	err := f.db.QueryRow(ctx, query, id).Scan(&fileById)
+	if err != nil {
+		return &fileById, err
+	}
+
+	return &fileById, nil
 
 }

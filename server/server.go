@@ -66,6 +66,7 @@ func (s *APIServer) RunServer() error {
 
 	handlers.RegisterFileHandlers(s.router)
 	handlers.RegisterLocationsHandler(s.router)
+	handlers.RegisterCarHandlers(s.router)
 
 	return http.ListenAndServe(s.serverConfig.BindAddr, s.router)
 

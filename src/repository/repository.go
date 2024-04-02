@@ -14,6 +14,7 @@ type File interface {
 }
 
 type Car interface {
+	CreateCar(ctx context.Context, car *models.CarRequest) (int, error)
 }
 
 type Location interface {
@@ -38,5 +39,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 	// В файле репозитория инициализируем наш репозиторий в конструкторе
 	return &Repository{File: NewFileDB(db),
 		Location: NewLocationDB(db),
+		Car:      NewCarDB(db),
 	}
 }

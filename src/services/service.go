@@ -13,6 +13,7 @@ type File interface {
 }
 
 type Car interface {
+	CreateCar(ctx context.Context, car *models.CarRequest) (int, error)
 }
 
 type Location interface {
@@ -38,5 +39,6 @@ func NewService(repository *repository.Repository) *Service {
 	return &Service{
 		File:     NewFileService(repository.File),
 		Location: NewLocationService(repository.Location),
+		Car:      NewCarService(repository.Car),
 	}
 }

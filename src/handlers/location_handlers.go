@@ -15,8 +15,7 @@ import (
 func (h *Handler) RegisterLocationsHandler(router *mux.Router) {
 	router.HandleFunc("/location", h.CreateLocation).Methods("Post")
 	router.HandleFunc("/location/{id}", h.GetLocationById).Methods("Get")
-	router.HandleFunc("/locations", h.GetLocations).Methods("Get")
-
+	router.HandleFunc("/locations", h.GetLocationsList).Methods("Get")
 }
 
 func (h *Handler) CreateLocation(response http.ResponseWriter, request *http.Request) {
@@ -75,6 +74,22 @@ func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Re
 
 }
 
-func (h *Handler) GetLocations(response http.ResponseWriter, request *http.Request) {
+func (h *Handler) GetLocationsList(response http.ResponseWriter, request *http.Request) {
+
+	locationsList, err := h.services.Location.GetLocationsList(context.Background())
+
+	if err != nil {
+		logrus.Fatal("(h *Handler) GetLocationsList", err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+	}
+
+	resp, err := json.Marshal(locationsList)
+
+	if err != nil {
+		logrus.Fatal("json.Marshal(location)", err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+	}
+
+	response.Write(resp)
 
 }

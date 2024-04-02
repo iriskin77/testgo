@@ -56,5 +56,40 @@ func (lc *LocationDB) GetLocationById(ctx context.Context, id int) (*models.Loca
 }
 
 func (lc *LocationDB) GetLocationsList(ctx context.Context) ([]models.Location, error) {
-	return nil, nil
+
+	locationsList := make([]models.Location, 0)
+
+	query := fmt.Sprintf("SELECT id, city, state, zip, latitude, longitude, created_at FROM %s", locationsTable)
+
+	rowsLocations, err := lc.db.Query(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rowsLocations.Next() {
+		var loc models.Location
+
+		err = rowsLocations.Scan(
+			&loc.Id,
+			&loc.City,
+			&loc.State,
+			&loc.Zip,
+			&loc.Latitude,
+			&loc.Longitude,
+			&loc.Created_at,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		locationsList = append(locationsList, loc)
+	}
+
+	if err = rowsLocations.Err(); err != nil {
+		return nil, err
+	}
+
+	return locationsList, nil
 }

@@ -40,5 +40,11 @@ func (sl *ServiceLocation) GetLocationById(ctx context.Context, id int) (*models
 }
 
 func (slc *ServiceLocation) GetLocationsList(ctx context.Context) ([]models.Location, error) {
-	return nil, nil
+	locationsList, err := slc.repo.GetLocationsList(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return locationsList, err
 }

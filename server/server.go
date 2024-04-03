@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/iriskin77/testgo/src/cargos"
 	"github.com/iriskin77/testgo/src/cars"
 	"github.com/iriskin77/testgo/src/files"
 	"github.com/iriskin77/testgo/src/locations"
@@ -72,10 +73,12 @@ func (s *APIServer) RunServer() error {
 	handlersCars := InitCars(db)
 	handlersFiles := InitFiles(db)
 	handlersLocations := InitLocations(db)
+	handersCargos := InitCargo(db)
 
 	handlersCars.RegisterCarHandlers(s.router)
 	handlersFiles.RegisterFileHandlers(s.router)
 	handlersLocations.RegisterLocationsHandler(s.router)
+	handersCargos.RegisterCargoHandlers(s.router)
 
 	return http.ListenAndServe(s.serverConfig.BindAddr, s.router)
 
@@ -112,6 +115,16 @@ func InitLocations(db *pgxpool.Pool) *locations.Handler {
 	repo := locations.NewLocationDB(db)
 	service := locations.NewLocationService(repo)
 	handers := locations.NewHandler(service)
+
+	return handers
+
+}
+
+func InitCargo(db *pgxpool.Pool) *cargos.Handler {
+
+	repo := cargos.NewCargoDB(db)
+	service := cargos.NewCargoService(repo)
+	handers := cargos.NewHandler(service)
 
 	return handers
 

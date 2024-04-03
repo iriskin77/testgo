@@ -1,4 +1,4 @@
-package handlers
+package files
 
 import (
 	"context"
@@ -19,6 +19,14 @@ const (
 	file         = "/files"
 	filedownload = "/files/{id}"
 )
+
+type Handler struct {
+	services ServiceFile
+}
+
+func NewHandler(services ServiceFile) *Handler {
+	return &Handler{services: services}
+}
 
 func (h *Handler) RegisterFileHandlers(router *mux.Router) {
 	router.HandleFunc(file, h.UploadFile).Methods("POST")
@@ -85,7 +93,7 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 		File_path: pathFile,
 	}
 
-	fileId, err := h.services.File.UploadFile(context.Background(), newFile)
+	fileId, err := h.services.UploadFile(context.Background(), newFile)
 
 	if err != nil {
 		logrus.Info("h.services.File.UploadFile(context.Background()", err.Error())
@@ -111,7 +119,7 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 		panic(err)
 	}
 
-	file, err := h.services.File.DownloadFile(context.Background(), fileId)
+	file, err := h.services.DownloadFile(context.Background(), fileId)
 
 	if err != nil {
 		http.Error(response, err.Error(), http.StatusInternalServerError) //return 404 if file is not found

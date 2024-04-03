@@ -1,4 +1,4 @@
-package repository
+package locations
 
 import (
 	"context"
@@ -11,6 +11,12 @@ import (
 const (
 	locationsTable = "locations"
 )
+
+type RepositoryLocation interface {
+	CreateLocation(ctx context.Context, location *models.Location) (int, error)
+	GetLocationById(ctx context.Context, id int) (*models.Location, error)
+	GetLocationsList(ctx context.Context) ([]models.Location, error)
+}
 
 type LocationDB struct {
 	db *pgxpool.Pool

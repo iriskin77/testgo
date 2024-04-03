@@ -1,4 +1,4 @@
-package repository
+package files
 
 import (
 	"context"
@@ -12,6 +12,11 @@ const (
 	filesTable    = "file"
 	locationTable = "locations"
 )
+
+type RepositoryFile interface {
+	UploadFile(ctx context.Context, file *models.File) (int, error)
+	DownloadFile(ctx context.Context, id int) (*models.File, error)
+}
 
 type FileDB struct {
 	db *pgxpool.Pool

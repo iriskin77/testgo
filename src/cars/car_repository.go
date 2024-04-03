@@ -1,4 +1,4 @@
-package repository
+package cars
 
 import (
 	"context"
@@ -11,6 +11,10 @@ import (
 const (
 	carTable = "cars"
 )
+
+type RepositoryCar interface {
+	CreateCar(ctx context.Context, car *models.CarRequest) (int, error)
+}
 
 type CarDB struct {
 	db *pgxpool.Pool

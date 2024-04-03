@@ -1,4 +1,4 @@
-package handlers
+package cars
 
 import (
 	"context"
@@ -10,6 +10,14 @@ import (
 	"github.com/iriskin77/testgo/models"
 	"github.com/sirupsen/logrus"
 )
+
+type Handler struct {
+	services ServiceCar
+}
+
+func NewHandler(services ServiceCar) *Handler {
+	return &Handler{services: services}
+}
 
 func (h *Handler) RegisterCarHandlers(router *mux.Router) {
 	router.HandleFunc("/createcar", h.CreateCar).Methods("POST")
@@ -23,7 +31,7 @@ func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request)
 
 	fmt.Println(newCar)
 
-	car, err := h.services.Car.CreateCar(context.Background(), newCar)
+	car, err := h.services.CreateCar(context.Background(), newCar)
 
 	fmt.Println(car)
 

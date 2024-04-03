@@ -1,4 +1,4 @@
-package handlers
+package locations
 
 import (
 	"context"
@@ -12,6 +12,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type Handler struct {
+	services ServiceLocation
+}
+
+func NewHandler(services ServiceLocation) *Handler {
+	return &Handler{services: services}
+}
+
 func (h *Handler) RegisterLocationsHandler(router *mux.Router) {
 	router.HandleFunc("/location", h.CreateLocation).Methods("Post")
 	router.HandleFunc("/location/{id}", h.GetLocationById).Methods("Get")
@@ -24,7 +32,7 @@ func (h *Handler) CreateLocation(response http.ResponseWriter, request *http.Req
 
 	json.NewDecoder(request.Body).Decode(newLocation)
 
-	location, err := h.services.Location.CreateLocation(context.Background(), newLocation)
+	location, err := h.services.CreateLocation(context.Background(), newLocation)
 
 	if err != nil {
 		logrus.Fatal("h.services.CreateLocation(newLocation)")
@@ -56,7 +64,7 @@ func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Re
 
 	fmt.Println(locationId)
 
-	locationById, err := h.services.Location.GetLocationById(context.Background(), locationId)
+	locationById, err := h.services.GetLocationById(context.Background(), locationId)
 
 	if err != nil {
 		logrus.Fatal("h.services.CreateLocation(newLocation)", err.Error())
@@ -76,7 +84,7 @@ func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Re
 
 func (h *Handler) GetLocationsList(response http.ResponseWriter, request *http.Request) {
 
-	locationsList, err := h.services.Location.GetLocationsList(context.Background())
+	locationsList, err := h.services.GetLocationsList(context.Background())
 
 	if err != nil {
 		logrus.Fatal("(h *Handler) GetLocationsList", err.Error())

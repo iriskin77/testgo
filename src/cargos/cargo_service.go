@@ -2,12 +2,11 @@ package cargos
 
 import (
 	"context"
-
-	"github.com/iriskin77/testgo/models"
 )
 
 type ServiceCar interface {
-	CreateCargo(ctx context.Context, cargo *models.CargoRequest) (int, error)
+	CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error)
+	GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error)
 }
 
 type serviceCargo struct {
@@ -20,7 +19,7 @@ func NewCargoService(repo RepositoryCargo) *serviceCargo {
 	return &serviceCargo{repo: repo}
 }
 
-func (cr *serviceCargo) CreateCargo(ctx context.Context, cargo *models.CargoRequest) (int, error) {
+func (cr *serviceCargo) CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error) {
 	newCarId, err := cr.repo.CreateCargo(ctx, cargo)
 
 	if err != nil {
@@ -28,4 +27,15 @@ func (cr *serviceCargo) CreateCargo(ctx context.Context, cargo *models.CargoRequ
 	}
 
 	return newCarId, nil
+}
+
+func (cr *serviceCargo) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error) {
+
+	car, err := cr.repo.GetCargoCars(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return car, nil
 }

@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/iriskin77/testgo/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,11 +21,12 @@ func NewHandler(services ServiceCar) *Handler {
 
 func (h *Handler) RegisterCargoHandlers(router *mux.Router) {
 	router.HandleFunc("/createcargo", h.CreateCargo).Methods("POST")
+	router.HandleFunc("/get_cargo_cars/{id}", h.GetCargoCars).Methods("GET")
 }
 
 func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Request) {
 
-	newCargo := &models.CargoRequest{}
+	newCargo := &CargoRequest{}
 
 	json.NewDecoder(request.Body).Decode(newCargo)
 
@@ -39,6 +40,37 @@ func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Reques
 	}
 
 	resp, err := json.Marshal(cargoId)
+
+	if err != nil {
+		logrus.Fatal("json.Marshal(location)", err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+	}
+
+	response.Write(resp)
+
+}
+
+func (h *Handler) GetCargoCars(response http.ResponseWriter, request *http.Request) {
+
+	//cargo := &models.CargoCarsResponse{}
+
+	vars := mux.Vars(request)
+	id := vars["id"]
+
+	cargoId, err := strconv.Atoi(id)
+
+	if err != nil {
+		logrus.Fatal("(h *Handler) GetLocationById", err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+	}
+
+	res, err := h.services.GetCargoCars(context.Background(), cargoId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	resp, err := json.Marshal(res)
 
 	if err != nil {
 		logrus.Fatal("json.Marshal(location)", err.Error())

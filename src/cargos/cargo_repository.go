@@ -13,7 +13,8 @@ const (
 )
 
 type RepositoryCargo interface {
-	CreateCargo(ctx context.Context, cargo *models.CargoRequest) (int, error)
+	CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error)
+	GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error)
 }
 
 type CargoDB struct {
@@ -24,7 +25,7 @@ func NewCargoDB(db *pgxpool.Pool) *CargoDB {
 	return &CargoDB{db: db}
 }
 
-func (cr *CargoDB) CreateCargo(ctx context.Context, cargo *models.CargoRequest) (int, error) {
+func (cr *CargoDB) CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error) {
 
 	var pickUpId int
 
@@ -63,11 +64,115 @@ func (cr *CargoDB) CreateCargo(ctx context.Context, cargo *models.CargoRequest) 
 	return cargoId, nil
 }
 
-// CREATE TABLE cargos (
-//     id serial unique not null,
-//     cargo_name varchar(255) not null,
-//     weight INT NOT NULL,
-//     description varchar(1024) not null,
-//     pick_up_location_id int REFERENCES locations (id) ON DELETE SET NULL,
-//     delivery_location_id int REFERENCES locations (id) ON DELETE SET NULL
-// );
+func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error) {
+
+	// final response with the choosen cargo and cars
+	var cargoCars CargoCarsResponse
+	// cars list that are closest to the choosen cargo
+	var cars []CarResponse
+
+	// locations for cargo
+	var CargoPickUpLocation models.Location
+	var CargoDeliveryLocation models.Location
+
+	var cargoPickUpId int
+	var cargoDeliveryId int
+
+	queryCargo := `SELECT cargo_name, weight, description, pick_up_location_id, delivery_location_id
+	               FROM cargos 
+				   WHERE id = $1`
+
+	if err := cr.db.QueryRow(ctx, queryCargo, id).Scan(
+		&cargoCars.Cargo_name,
+		&cargoCars.Weight,
+		&cargoCars.Description,
+		&cargoPickUpId,
+		&cargoDeliveryId,
+	); err != nil {
+		return &cargoCars, err
+	}
+
+	fmt.Println(cargoCars)
+
+	queryPickUpLocation := `SELECT id, city, state, zip, latitude, longitude
+	                        FROM locations
+							WHERE id = $1`
+
+	if err := cr.db.QueryRow(ctx, queryPickUpLocation, cargoPickUpId).Scan(
+		&CargoPickUpLocation.Id,
+		&CargoPickUpLocation.City,
+		&CargoPickUpLocation.State,
+		&CargoPickUpLocation.Zip,
+		&CargoPickUpLocation.Latitude,
+		&CargoPickUpLocation.Longitude); err != nil {
+		return &cargoCars, err
+	}
+
+	fmt.Println(CargoPickUpLocation)
+
+	queryDeliveryLocation := `SELECT id, city, state, zip, latitude, longitude
+	                        FROM locations
+							WHERE id = $1`
+
+	if err := cr.db.QueryRow(ctx, queryDeliveryLocation, cargoDeliveryId).Scan(
+		&CargoDeliveryLocation.Id,
+		&CargoDeliveryLocation.City,
+		&CargoDeliveryLocation.State,
+		&CargoDeliveryLocation.Zip,
+		&CargoDeliveryLocation.Latitude,
+		&CargoDeliveryLocation.Longitude); err != nil {
+		return &cargoCars, err
+	}
+
+	fmt.Println(CargoDeliveryLocation)
+
+	//Получаем машины и локации
+
+	queryCars := `SELECT cars.unique_number, cars.car_name, cars.load_capacity,
+	                          locations.id, locations.city, locations.state, locations.zip, locations.latitude, locations.longitude
+	                          
+							  FROM cars INNER JOIN locations ON cars.id = locations.id`
+
+	rowsCars, err := cr.db.Query(ctx, queryCars)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Print(rowsCars.Next())
+
+	for rowsCars.Next() {
+		var car CarResponse
+		//var loc models.Location
+
+		err = rowsCars.Scan(
+			&car.Unique_number,
+			&car.Car_name,
+			&car.Load_capacity,
+			&car.Car_location.Id,
+			&car.Car_location.City,
+			&car.Car_location.State,
+			&car.Car_location.Zip,
+			&car.Car_location.Latitude,
+			&car.Car_location.Longitude,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		cars = append(cars, car)
+	}
+
+	if err := rowsCars.Err(); err != nil {
+		return nil, err
+	}
+
+	fmt.Println(cars)
+
+	cargoCars.Pickup_loc = CargoPickUpLocation
+	cargoCars.Delivery_loc = CargoDeliveryLocation
+	cargoCars.Cars = cars
+
+	return &cargoCars, nil
+}

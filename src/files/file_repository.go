@@ -6,6 +6,7 @@ import (
 
 	"github.com/iriskin77/testgo/models"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go.uber.org/zap"
 )
 
 const (
@@ -19,11 +20,15 @@ type RepositoryFile interface {
 }
 
 type FileDB struct {
-	db *pgxpool.Pool
+	db     *pgxpool.Pool
+	logger *zap.Logger
 }
 
-func NewFileDB(db *pgxpool.Pool) *FileDB {
-	return &FileDB{db: db}
+func NewFileDB(db *pgxpool.Pool, logger *zap.Logger) *FileDB {
+	return &FileDB{
+		db:     db,
+		logger: logger,
+	}
 }
 
 func (f *FileDB) UploadFile(ctx context.Context, file *models.File) (int, error) {

@@ -3,7 +3,6 @@ package files
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -11,8 +10,9 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/iriskin77/testgo/errors"
 	"github.com/iriskin77/testgo/models"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 const (
@@ -22,10 +22,14 @@ const (
 
 type Handler struct {
 	services ServiceFile
+	logger   *zap.Logger
 }
 
-func NewHandler(services ServiceFile) *Handler {
-	return &Handler{services: services}
+func NewHandler(services ServiceFile, logger *zap.Logger) *Handler {
+	return &Handler{
+		services: services,
+		logger:   logger,
+	}
 }
 
 func (h *Handler) RegisterFileHandlers(router *mux.Router) {
@@ -39,8 +43,8 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	// Берем файл из хэндлера
 	file, handler, err := request.FormFile("file")
 	if err != nil {
-		fmt.Println("Error Retrieving the File")
-		fmt.Println(err)
+		h.logger.Error("Failed to CreateLocation in handlers", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -49,7 +53,8 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	// Создаем папку для хранения файлов, если ее не существует
 	err = os.MkdirAll("./uploads", os.ModePerm)
 	if err != nil {
-		http.Error(response, err.Error(), http.StatusInternalServerError)
+		h.logger.Error("Failed to Create dir uploads to store files", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -60,7 +65,8 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 
 	// Проверяем, есть ли в папке такой файл
 	if _, err := os.Stat(pathFile); err == nil {
-		http.Error(response, "File already exists. You should change filename", http.StatusInternalServerError)
+		h.logger.Error("", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -68,22 +74,23 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 
 	// Проверяем формат файла
 	if fileExt != ".csv" {
-		http.Error(response, "File should be csv", http.StatusForbidden)
+		h.logger.Error("File should be .csv", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	openedFile, err := os.OpenFile(pathFile, os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(response).Encode("something went wrong(OpenedFile)")
+		h.logger.Error("Cannot open the file", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer openedFile.Close()
 
 	_, err = io.Copy(openedFile, file)
 	if err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(response).Encode("something went wrong (Copy)")
+		h.logger.Error("Failed to copy file to dir uploads (file storage)", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -96,11 +103,14 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	fileId, err := h.services.UploadFile(context.Background(), newFile)
 
 	if err != nil {
-		logrus.Info("h.services.File.UploadFile(context.Background()", err.Error())
+		h.logger.Error("Failed to upload file path to DB", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	if id, err := json.Marshal(fileId); err != nil {
-		http.Error(response, "Wrong", http.StatusInternalServerError)
+		h.logger.Error("Failed to marshal file id as a response from web-server", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	} else {
 		response.Write(id)
@@ -116,20 +126,24 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 	fileId, err := strconv.Atoi(id)
 
 	if err != nil {
-		panic(err)
+		h.logger.Error("Failed to parse file id from user request", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
+		return
 	}
 
 	file, err := h.services.DownloadFile(context.Background(), fileId)
 
 	if err != nil {
-		http.Error(response, err.Error(), http.StatusInternalServerError) //return 404 if file is not found
+		h.logger.Error("Failed to get file path from DB", zap.Error(err)) //return 404 if file is not found
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
 		return
 	}
 
 	Openfile, err := os.Open(file.File_path) //Open the file to be downloaded later
 
 	if err != nil {
-		http.Error(response, err.Error(), http.StatusNotFound) //return 404 if file is not found
+		h.logger.Error("Failed to get file path from DB", zap.Error(err)) //return 404 if file is not found
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
 		return
 	}
 

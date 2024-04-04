@@ -111,8 +111,8 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	fmt.Println(CargoPickUpLocation)
 
 	queryDeliveryLocation := `SELECT id, city, state, zip, latitude, longitude
-	                        FROM locations
-							WHERE id = $1`
+	                          FROM locations
+							  WHERE id = $1`
 
 	if err := cr.db.QueryRow(ctx, queryDeliveryLocation, cargoDeliveryId).Scan(
 		&CargoDeliveryLocation.Id,
@@ -129,9 +129,9 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	//Получаем машины и локации
 
 	queryCars := `SELECT cars.unique_number, cars.car_name, cars.load_capacity,
-	                          locations.id, locations.city, locations.state, locations.zip, locations.latitude, locations.longitude
+	                     locations.id, locations.city, locations.state, locations.zip, locations.latitude, locations.longitude
 	                          
-							  FROM cars INNER JOIN locations ON cars.id = locations.id`
+				  FROM cars INNER JOIN locations ON cars.id = locations.id`
 
 	rowsCars, err := cr.db.Query(ctx, queryCars)
 

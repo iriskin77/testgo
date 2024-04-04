@@ -8,8 +8,8 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/iriskin77/testgo/errors"
 	"github.com/iriskin77/testgo/models"
-	"github.com/iriskin77/testgo/src/errors"
 	"go.uber.org/zap"
 )
 
@@ -19,7 +19,10 @@ type Handler struct {
 }
 
 func NewHandler(services ServiceLocation, logger *zap.Logger) *Handler {
-	return &Handler{services: services, logger: logger}
+	return &Handler{
+		services: services,
+		logger:   logger,
+	}
 }
 
 func (h *Handler) RegisterLocationsHandler(router *mux.Router) {

@@ -14,10 +14,11 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type APIServer struct {
-	logger       *logrus.Logger
 	serverConfig *ConfigServer
 	router       *mux.Router
 }
@@ -25,7 +26,6 @@ type APIServer struct {
 func NewApiServer(serverConfig *ConfigServer) *APIServer {
 	return &APIServer{
 		serverConfig: serverConfig,
-		logger:       logrus.New(),
 		router:       mux.NewRouter(),
 	}
 
@@ -33,7 +33,13 @@ func NewApiServer(serverConfig *ConfigServer) *APIServer {
 
 func (s *APIServer) RunServer() error {
 
-	s.logger.Info("starting API Server")
+	// Инициализируем логгер
+	logger, err := initLogger()
+	if err != nil {
+		return err
+	}
+
+	logger.Info("starting API Server")
 
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("error initialization config %s", err.Error())
@@ -55,24 +61,14 @@ func (s *APIServer) RunServer() error {
 	})
 
 	if err != nil {
-		logrus.Fatal("failed to initialize db: %s", err.Error())
+		logger.Error("failed to initialize db: %s", zap.Error(err))
 	}
 
-	logrus.Info("db has been initialized")
-
-	// repo := repository.NewRepository(db) // возвращает репозиторий (struct) Repository с методами для БД (CreateUser...)
-
-	// service := services.NewService(repo) // возвращает сервис (struct) Service с методами для БД (CreateUser...)
-
-	// handlers := handlers.NewHandler(service) // возвращает хэндлеры (struct) Handler
-
-	// handlers.RegisterFileHandlers(s.router)
-	// handlers.RegisterLocationsHandler(s.router)
-	// handlers.RegisterCarHandlers(s.router)
+	logger.Info("db has been initialized")
 
 	handlersCars := InitCars(db)
-	handlersFiles := InitFiles(db)
-	handlersLocations := InitLocations(db)
+	handlersFiles := InitFiles(db, logger)
+	handlersLocations := InitLocations(db, logger)
 	handersCargos := InitCargo(db)
 
 	handlersCars.RegisterCarHandlers(s.router)
@@ -80,8 +76,21 @@ func (s *APIServer) RunServer() error {
 	handlersLocations.RegisterLocationsHandler(s.router)
 	handersCargos.RegisterCargoHandlers(s.router)
 
+	logger.Info("handlers have been registered")
+
 	return http.ListenAndServe(s.serverConfig.BindAddr, s.router)
 
+}
+
+func initLogger() (*zap.Logger, error) {
+	return zap.Config{
+		Level:            zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		Development:      true,
+		Encoding:         "json",
+		EncoderConfig:    zap.NewProductionEncoderConfig(),
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stderr"},
+	}.Build()
 }
 
 func initConfig() error {
@@ -100,21 +109,21 @@ func InitCars(db *pgxpool.Pool) *cars.Handler {
 
 }
 
-func InitFiles(db *pgxpool.Pool) *files.Handler {
+func InitFiles(db *pgxpool.Pool, logger *zap.Logger) *files.Handler {
 
-	repo := files.NewFileDB(db)
-	service := files.NewFileService(repo)
-	handers := files.NewHandler(service)
+	repo := files.NewFileDB(db, logger)
+	service := files.NewFileService(repo, logger)
+	handers := files.NewHandler(service, logger)
 
 	return handers
 
 }
 
-func InitLocations(db *pgxpool.Pool) *locations.Handler {
+func InitLocations(db *pgxpool.Pool, logger *zap.Logger) *locations.Handler {
 
-	repo := locations.NewLocationDB(db)
-	service := locations.NewLocationService(repo)
-	handers := locations.NewHandler(service)
+	repo := locations.NewLocationDB(db, logger)
+	service := locations.NewLocationService(repo, logger)
+	handers := locations.NewHandler(service, logger)
 
 	return handers
 

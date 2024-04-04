@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/iriskin77/testgo/models"
+	"go.uber.org/zap"
 )
 
 type ServiceFile interface {
@@ -13,12 +14,16 @@ type ServiceFile interface {
 
 type serviceFile struct {
 	// создаем структуру, которая принимает репозиторий для работы с БД
-	repo RepositoryFile
+	repo   RepositoryFile
+	logger *zap.Logger
 }
 
-func NewFileService(repo RepositoryFile) *serviceFile {
+func NewFileService(repo RepositoryFile, logger *zap.Logger) *serviceFile {
 	// Конструктор: принимает репозиторий, возваращает сервис с репозиторием
-	return &serviceFile{repo: repo}
+	return &serviceFile{
+		repo:   repo,
+		logger: logger,
+	}
 }
 
 func (s *serviceFile) UploadFile(ctx context.Context, file *models.File) (int, error) {

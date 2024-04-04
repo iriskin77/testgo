@@ -69,7 +69,7 @@ func (s *APIServer) RunServer() error {
 	handlersCars := InitCars(db, logger)
 	handlersFiles := InitFiles(db, logger)
 	handlersLocations := InitLocations(db, logger)
-	handersCargos := InitCargo(db)
+	handersCargos := InitCargo(db, logger)
 
 	handlersCars.RegisterCarHandlers(s.router)
 	handlersFiles.RegisterFileHandlers(s.router)
@@ -129,11 +129,11 @@ func InitLocations(db *pgxpool.Pool, logger *zap.Logger) *locations.Handler {
 
 }
 
-func InitCargo(db *pgxpool.Pool) *cargos.Handler {
+func InitCargo(db *pgxpool.Pool, logger *zap.Logger) *cargos.Handler {
 
 	repo := cargos.NewCargoDB(db)
 	service := cargos.NewCargoService(repo)
-	handers := cargos.NewHandler(service)
+	handers := cargos.NewHandler(service, logger)
 
 	return handers
 

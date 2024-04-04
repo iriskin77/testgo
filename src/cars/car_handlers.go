@@ -25,6 +25,7 @@ func NewHandler(services ServiceCar, logger *zap.Logger) *Handler {
 
 func (h *Handler) RegisterCarHandlers(router *mux.Router) {
 	router.HandleFunc("/createcar", h.CreateCar).Methods("POST")
+	router.HandleFunc("/update_car", h.UpdateCarById).Methods("PUT")
 }
 
 func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request) {
@@ -42,6 +43,32 @@ func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request)
 	}
 
 	resp, err := json.Marshal(carId)
+
+	if err != nil {
+		h.logger.Error("Failed to Marshal response (car id)", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	response.Write(resp)
+
+}
+
+func (h *Handler) UpdateCarById(response http.ResponseWriter, request *http.Request) {
+
+	carUpdatedData := &CarUpdateRequest{}
+
+	json.NewDecoder(request.Body).Decode(carUpdatedData)
+
+	carUpdatedId, err := h.services.UpdateCarById(context.Background(), carUpdatedData)
+
+	if err != nil {
+		h.logger.Error("Failed to update car by id", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
+		return
+	}
+
+	resp, err := json.Marshal(carUpdatedId)
 
 	if err != nil {
 		h.logger.Error("Failed to Marshal response (car id)", zap.Error(err))

@@ -9,6 +9,7 @@ import (
 
 type ServiceCar interface {
 	CreateCar(ctx context.Context, car *models.CarRequest) (int, error)
+	UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) (int, error)
 }
 
 type serviceCar struct {
@@ -32,4 +33,15 @@ func (scar *serviceCar) CreateCar(ctx context.Context, car *models.CarRequest) (
 	}
 
 	return carId, nil
+}
+
+func (scar *serviceCar) UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) (int, error) {
+
+	carUpdatedId, err := scar.repo.UpdateCarById(ctx, carUpdate)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return carUpdatedId, nil
 }

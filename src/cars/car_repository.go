@@ -15,6 +15,7 @@ const (
 
 type RepositoryCar interface {
 	CreateCar(ctx context.Context, car *models.CarRequest) (int, error)
+	UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) (int, error)
 }
 
 type CarDB struct {
@@ -53,4 +54,41 @@ func (c *CarDB) CreateCar(ctx context.Context, car *models.CarRequest) (int, err
 	}
 
 	return carId, nil
+}
+
+func (c *CarDB) UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) (int, error) {
+
+	var newLocationId int
+	var carUpdatedId int
+
+	fmt.Println(carUpdate.Zip)
+
+	queryZip := `SELECT id
+	             FROM locations
+				 WHERE zip = $1`
+
+	if err := c.db.QueryRow(ctx, queryZip,
+		carUpdate.Zip).Scan(&newLocationId); err != nil {
+		c.logger.Error("Failed to get location by zip from DB", zap.Error(err))
+		return 0, err
+	}
+
+	fmt.Println(newLocationId)
+
+	queryCarUpdate := `UPDATE cars
+	                   SET unique_number = $1, car_name = $2, load_capacity = $3, car_location_id = $4 
+					   WHERE id = $5
+					   RETURNING id`
+
+	if err := c.db.QueryRow(ctx, queryCarUpdate,
+		&carUpdate.Unique_number,
+		&carUpdate.Car_name,
+		&carUpdate.Load_capacity,
+		newLocationId,
+		&carUpdate.Id).Scan(&carUpdatedId); err != nil {
+		return 0, err
+	}
+
+	return carUpdatedId, nil
+
 }

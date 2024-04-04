@@ -21,14 +21,16 @@ type CargoCarsResponse struct {
 	Cars         []CarResponse   `json:"cars"`
 }
 
-type CargosCarsReponse struct {
-	Cargos []CargoCarsResponse `json:cargos`
-}
-
 type CarResponse struct {
 	Unique_number string          `json:"unique_number"`
 	Car_name      string          `json:"car_name"`
 	Load_capacity int             `json:"load_capacity"`
 	Zip           int             `json:"zip"`
 	Car_location  models.Location `json:"car_location"`
+}
+
+type CargoUpdateRequest struct {
+	Id          int    `json:"id"`
+	Weight      int    `json:"weight"`
+	Description string `json:"description"`
 }

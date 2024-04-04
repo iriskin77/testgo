@@ -89,7 +89,7 @@ func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.R
 
 func (h *Handler) GetListCargos(response http.ResponseWriter, request *http.Request) {
 
-	res, err := h.services.GetListCargos(context.Background())
+	listCargos, err := h.services.GetListCargos(context.Background())
 
 	if err != nil {
 		h.logger.Error("Failed to get list cargos and the closest cars from DB", zap.Error(err))
@@ -97,7 +97,31 @@ func (h *Handler) GetListCargos(response http.ResponseWriter, request *http.Requ
 		return
 	}
 
-	resp, err := json.Marshal(res)
+	resp, err := json.Marshal(listCargos)
+
+	if err != nil {
+		h.logger.Error("Failed to parse response (cargo and cars)", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	response.Write(resp)
+
+}
+
+func (h *Handler) UpdateCargoById(response http.ResponseWriter, request *http.Request) {
+
+	cargoUpdated := &CargoUpdateRequest{}
+
+	json.NewDecoder(request.Body).Decode(cargoUpdated)
+
+	carUpdatedId, err := h.services.UpdateCargoById(context.Background(), cargoUpdated)
+
+	if err != nil {
+		h.logger.Error("Failed to update cargo", zap.Error(err))
+	}
+
+	resp, err := json.Marshal(carUpdatedId)
 
 	if err != nil {
 		h.logger.Error("Failed to parse response (cargo and cars)", zap.Error(err))

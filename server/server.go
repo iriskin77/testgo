@@ -131,8 +131,8 @@ func InitLocations(db *pgxpool.Pool, logger *zap.Logger) *locations.Handler {
 
 func InitCargo(db *pgxpool.Pool, logger *zap.Logger) *cargos.Handler {
 
-	repo := cargos.NewCargoDB(db)
-	service := cargos.NewCargoService(repo)
+	repo := cargos.NewCargoDB(db, logger)
+	service := cargos.NewCargoService(repo, logger)
 	handers := cargos.NewHandler(service, logger)
 
 	return handers

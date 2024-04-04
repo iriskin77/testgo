@@ -6,6 +6,7 @@ import (
 
 	"github.com/iriskin77/testgo/models"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go.uber.org/zap"
 )
 
 const (
@@ -16,14 +17,19 @@ type RepositoryCargo interface {
 	CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error)
 	GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error)
 	GetListCargos(ctx context.Context) ([]interface{}, error)
+	UpdateCargoById(ctx context.Context, cargoUpdate *CargoUpdateRequest) (int, error)
 }
 
 type CargoDB struct {
-	db *pgxpool.Pool
+	db     *pgxpool.Pool
+	logger *zap.Logger
 }
 
-func NewCargoDB(db *pgxpool.Pool) *CargoDB {
-	return &CargoDB{db: db}
+func NewCargoDB(db *pgxpool.Pool, logger *zap.Logger) *CargoDB {
+	return &CargoDB{
+		db:     db,
+		logger: logger,
+	}
 }
 
 func (cr *CargoDB) CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error) {
@@ -214,4 +220,24 @@ func (cr *CargoDB) GetListCargos(ctx context.Context) ([]interface{}, error) {
 
 	return CargoCarsResp, nil
 
+}
+
+func (cr *CargoDB) UpdateCargoById(ctx context.Context, cargoUpdate *CargoUpdateRequest) (int, error) {
+
+	var cargoUpdatedId int
+
+	queryUpdateCargo := `UPDATE cargos
+	                     SET weight = $1, description = $2
+						 WHERE id = $1
+						 RETURNING id`
+
+	if err := cr.db.QueryRow(ctx, queryUpdateCargo,
+		&cargoUpdate.Weight,
+		&cargoUpdate.Description,
+		&cargoUpdate.Id).Scan(&cargoUpdatedId); err != nil {
+		cr.logger.Error("Failed to update cargo in DB", zap.Error(err))
+		return 0, err
+	}
+
+	return cargoUpdatedId, nil
 }

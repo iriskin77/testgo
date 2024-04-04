@@ -15,6 +15,7 @@ const (
 type RepositoryCargo interface {
 	CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error)
 	GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error)
+	GetListCargos(ctx context.Context) ([]interface{}, error)
 }
 
 type CargoDB struct {
@@ -175,4 +176,42 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	cargoCars.Cars = cars
 
 	return &cargoCars, nil
+}
+
+func (cr *CargoDB) GetListCargos(ctx context.Context) ([]interface{}, error) {
+
+	var CargoCarsResp []interface{}
+
+	queryCargos := `SELECT id 
+				    FROM cargos`
+
+	rowsCargos, err := cr.db.Query(ctx, queryCargos)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rowsCargos.Next() {
+		var cargoId int
+
+		err = rowsCargos.Scan(
+			&cargoId,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		cargoItem, err := cr.GetCargoCars(ctx, cargoId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		CargoCarsResp = append(CargoCarsResp, cargoItem)
+
+	}
+
+	return CargoCarsResp, nil
+
 }

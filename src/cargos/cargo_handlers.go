@@ -26,6 +26,7 @@ func NewHandler(services ServiceCar, logger *zap.Logger) *Handler {
 func (h *Handler) RegisterCargoHandlers(router *mux.Router) {
 	router.HandleFunc("/createcargo", h.CreateCargo).Methods("POST")
 	router.HandleFunc("/get_cargo_cars/{id}", h.GetCargoByIDCars).Methods("GET")
+	router.HandleFunc("/get_list_cargos", h.GetListCargos).Methods("GET")
 }
 
 func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Request) {
@@ -56,8 +57,6 @@ func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Reques
 
 func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.Request) {
 
-	//cargo := &models.CargoCarsResponse{}
-
 	vars := mux.Vars(request)
 	id := vars["id"]
 
@@ -73,6 +72,27 @@ func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.R
 
 	if err != nil {
 		h.logger.Error("Failed to get the cargo and the closest cars from DB", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	resp, err := json.Marshal(res)
+
+	if err != nil {
+		h.logger.Error("Failed to parse response (cargo and cars)", zap.Error(err))
+		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	response.Write(resp)
+}
+
+func (h *Handler) GetListCargos(response http.ResponseWriter, request *http.Request) {
+
+	res, err := h.services.GetListCargos(context.Background())
+
+	if err != nil {
+		h.logger.Error("Failed to get list cargos and the closest cars from DB", zap.Error(err))
 		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}

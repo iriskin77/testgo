@@ -7,6 +7,7 @@ import (
 type ServiceCar interface {
 	CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error)
 	GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error)
+	GetListCargos(ctx context.Context) ([]interface{}, error)
 }
 
 type serviceCargo struct {
@@ -32,6 +33,17 @@ func (cr *serviceCargo) CreateCargo(ctx context.Context, cargo *CargoRequest) (i
 func (cr *serviceCargo) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error) {
 
 	car, err := cr.repo.GetCargoCars(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return car, nil
+}
+
+func (cr *serviceCargo) GetListCargos(ctx context.Context) ([]interface{}, error) {
+
+	car, err := cr.repo.GetListCargos(ctx)
 
 	if err != nil {
 		return nil, err

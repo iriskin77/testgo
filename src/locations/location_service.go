@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/iriskin77/testgo/models"
+	"go.uber.org/zap"
 )
 
 type ServiceLocation interface {
@@ -14,18 +15,20 @@ type ServiceLocation interface {
 
 type serviceLocation struct {
 	// создаем структуру, которая принимает репозиторий для работы с БД
-	repo RepositoryLocation
+	repo   RepositoryLocation
+	logger *zap.Logger
 }
 
-func NewLocationService(repo RepositoryLocation) *serviceLocation {
+func NewLocationService(repo RepositoryLocation, logger *zap.Logger) *serviceLocation {
 	// Конструктор: принимает репозиторий, возваращает сервис с репозиторием
-	return &serviceLocation{repo: repo}
+	return &serviceLocation{repo: repo, logger: logger}
 }
 
 func (sl *serviceLocation) CreateLocation(ctx context.Context, location *models.Location) (int, error) {
 	newLocation, err := sl.repo.CreateLocation(ctx, location)
 
 	if err != nil {
+		sl.logger.Error("Failed to CreateLocation in service", zap.Error(err))
 		return 0, err
 	}
 
@@ -37,6 +40,7 @@ func (sl *serviceLocation) GetLocationById(ctx context.Context, id int) (*models
 	locationById, err := sl.repo.GetLocationById(ctx, id)
 
 	if err != nil {
+		//sl.logger.Error("Failed to GetLocationById in service", zap.Error(err))
 		return nil, err
 	}
 
@@ -44,10 +48,11 @@ func (sl *serviceLocation) GetLocationById(ctx context.Context, id int) (*models
 
 }
 
-func (slc *serviceLocation) GetLocationsList(ctx context.Context) ([]models.Location, error) {
-	locationsList, err := slc.repo.GetLocationsList(ctx)
+func (sl *serviceLocation) GetLocationsList(ctx context.Context) ([]models.Location, error) {
+	locationsList, err := sl.repo.GetLocationsList(ctx)
 
 	if err != nil {
+		sl.logger.Error("Failed to GetLocationsList in service", zap.Error(err))
 		return nil, err
 	}
 

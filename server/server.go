@@ -66,7 +66,7 @@ func (s *APIServer) RunServer() error {
 
 	logger.Info("db has been initialized")
 
-	handlersCars := InitCars(db)
+	handlersCars := InitCars(db, logger)
 	handlersFiles := InitFiles(db, logger)
 	handlersLocations := InitLocations(db, logger)
 	handersCargos := InitCargo(db)
@@ -99,11 +99,11 @@ func initConfig() error {
 	return viper.ReadInConfig()
 }
 
-func InitCars(db *pgxpool.Pool) *cars.Handler {
+func InitCars(db *pgxpool.Pool, logger *zap.Logger) *cars.Handler {
 
-	repo := cars.NewCarDB(db)
-	service := cars.NewCarService(repo)
-	handers := cars.NewHandler(service)
+	repo := cars.NewCarDB(db, logger)
+	service := cars.NewCarService(repo, logger)
+	handers := cars.NewHandler(service, logger)
 
 	return handers
 

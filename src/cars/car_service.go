@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/iriskin77/testgo/models"
+	"go.uber.org/zap"
 )
 
 type ServiceCar interface {
@@ -12,12 +13,15 @@ type ServiceCar interface {
 
 type serviceCar struct {
 	// создаем структуру, которая принимает репозиторий для работы с БД
-	repo RepositoryCar
+	repo   RepositoryCar
+	logger *zap.Logger
 }
 
-func NewCarService(repo RepositoryCar) *serviceCar {
+func NewCarService(repo RepositoryCar, logger *zap.Logger) *serviceCar {
 	// Конструктор: принимает репозиторий, возваращает сервис с репозиторием
-	return &serviceCar{repo: repo}
+	return &serviceCar{
+		repo:   repo,
+		logger: logger}
 }
 
 func (scar *serviceCar) CreateCar(ctx context.Context, car *models.CarRequest) (int, error) {

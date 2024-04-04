@@ -6,6 +6,7 @@ import (
 
 	"github.com/iriskin77/testgo/models"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go.uber.org/zap"
 )
 
 const (
@@ -17,11 +18,15 @@ type RepositoryCar interface {
 }
 
 type CarDB struct {
-	db *pgxpool.Pool
+	db     *pgxpool.Pool
+	logger *zap.Logger
 }
 
-func NewCarDB(db *pgxpool.Pool) *CarDB {
-	return &CarDB{db: db}
+func NewCarDB(db *pgxpool.Pool, logger *zap.Logger) *CarDB {
+	return &CarDB{
+		db:     db,
+		logger: logger,
+	}
 }
 
 func (c *CarDB) CreateCar(ctx context.Context, car *models.CarRequest) (int, error) {

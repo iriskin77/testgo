@@ -6,7 +6,6 @@ import (
 
 	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"go.uber.org/zap"
 )
 
 const (
@@ -69,7 +68,7 @@ func (c *CarDB) UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) 
 
 	if err := c.db.QueryRow(ctx, queryZip,
 		carUpdate.Zip).Scan(&newLocationId); err != nil {
-		c.logger.Error("Failed to get location by zip from DB", zap.Error(err))
+		c.logger.Errorf("Failed to get location by zip from DB %s", err.Error())
 		return 0, err
 	}
 

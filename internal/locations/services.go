@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/iriskin77/testgo/pkg/logging"
-	"go.uber.org/zap"
 )
 
 type ServiceLocation interface {
@@ -28,7 +27,7 @@ func (sl *serviceLocation) CreateLocation(ctx context.Context, location *Locatio
 	newLocation, err := sl.repo.CreateLocation(ctx, location)
 
 	if err != nil {
-		sl.logger.Error("Failed to CreateLocation in service", zap.Error(err))
+		sl.logger.Errorf("Failed to CreateLocation in service %s", err.Error())
 		return 0, err
 	}
 
@@ -52,7 +51,7 @@ func (sl *serviceLocation) GetLocationsList(ctx context.Context) ([]Location, er
 	locationsList, err := sl.repo.GetLocationsList(ctx)
 
 	if err != nil {
-		sl.logger.Error("Failed to GetLocationsList in service", zap.Error(err))
+		sl.logger.Errorf("Failed to GetLocationsList in service %s", err.Error())
 		return nil, err
 	}
 

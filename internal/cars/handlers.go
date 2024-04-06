@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/internal/errors"
 	"github.com/iriskin77/testgo/pkg/logging"
-	"go.uber.org/zap"
 )
 
 type Handler struct {
@@ -37,7 +36,7 @@ func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request)
 	carId, err := h.services.CreateCar(context.Background(), newCar)
 
 	if err != nil {
-		h.logger.Error("Failed to CreateCar", zap.Error(err))
+		h.logger.Errorf("Failed to CreateCar %s", err.Error())
 		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -45,7 +44,7 @@ func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request)
 	resp, err := json.Marshal(carId)
 
 	if err != nil {
-		h.logger.Error("Failed to Marshal response (car id)", zap.Error(err))
+		h.logger.Errorf("Failed to Marshal response (car id) %s", err.Error())
 		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -63,7 +62,7 @@ func (h *Handler) UpdateCarById(response http.ResponseWriter, request *http.Requ
 	carUpdatedId, err := h.services.UpdateCarById(context.Background(), carUpdatedData)
 
 	if err != nil {
-		h.logger.Error("Failed to update car by id", zap.Error(err))
+		h.logger.Errorf("Failed to update car by id %s", err.Error())
 		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
 		return
 	}
@@ -71,7 +70,7 @@ func (h *Handler) UpdateCarById(response http.ResponseWriter, request *http.Requ
 	resp, err := json.Marshal(carUpdatedId)
 
 	if err != nil {
-		h.logger.Error("Failed to Marshal response (car id)", zap.Error(err))
+		h.logger.Errorf("Failed to Marshal response (car id) %s", err.Error())
 		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
 		return
 	}

@@ -6,7 +6,6 @@ import (
 
 	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"go.uber.org/zap"
 )
 
 const (
@@ -35,7 +34,7 @@ func (lc *LocationDB) CreateLocation(ctx context.Context, location *Location) (i
 	query := fmt.Sprintf("INSERT INTO %s (city, state, zip, latitude, longitude) VALUES ($1, $2, $3, $4, $5) RETURNING id", locationsTable)
 
 	if err := lc.db.QueryRow(ctx, query, location.City, location.State, location.Zip, location.Latitude, location.Longitude).Scan(&id); err != nil {
-		lc.logger.Error("Failed to create location", zap.Error(err))
+		lc.logger.Errorf("Failed to create location %s", err.Error())
 		return 0, err
 	}
 
@@ -57,7 +56,7 @@ func (lc *LocationDB) GetLocationById(ctx context.Context, id int) (*Location, e
 		&locationById.Latitude,
 		&locationById.Longitude,
 		&locationById.Created_at); err != nil {
-		lc.logger.Error("Failed to get a location by id", zap.Error(err))
+		lc.logger.Errorf("Failed to get a location by id %s", err.Error())
 		return &locationById, err
 	}
 
@@ -74,7 +73,7 @@ func (lc *LocationDB) GetLocationsList(ctx context.Context) ([]Location, error) 
 	rowsLocations, err := lc.db.Query(ctx, query)
 
 	if err != nil {
-		lc.logger.Error("Failed to retrieve list locations from db", zap.Error(err))
+		lc.logger.Errorf("Failed to retrieve list locations from db %s", err.Error())
 		return nil, err
 	}
 
@@ -92,16 +91,12 @@ func (lc *LocationDB) GetLocationsList(ctx context.Context) ([]Location, error) 
 		)
 
 		if err != nil {
-			lc.logger.Error("Failed to retrieve list locations from db", zap.Error(err))
+			lc.logger.Errorf("Failed to retrieve list locations from db %s", err.Error())
 			return nil, err
 		}
 
 		locationsList = append(locationsList, loc)
 	}
-
-	// if err = rowsLocations.Err(); err != nil {
-	// 	return nil, err
-	// }
 
 	return locationsList, nil
 }

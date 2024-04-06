@@ -48,7 +48,7 @@ func (l *Logger) GetLoggerWithField(k string, v interface{}) Logger {
 	return Logger{l.WithField(k, v)}
 }
 
-func Init() {
+func InitLogger() {
 	l := logrus.New()
 	l.SetReportCaller(true)
 	l.Formatter = &logrus.TextFormatter{

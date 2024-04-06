@@ -9,15 +9,16 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/internal/errors"
+	"github.com/iriskin77/testgo/pkg/logging"
 	"go.uber.org/zap"
 )
 
 type Handler struct {
 	services ServiceLocation
-	logger   *zap.Logger
+	logger   logging.Logger
 }
 
-func NewHandler(services ServiceLocation, logger *zap.Logger) *Handler {
+func NewHandler(services ServiceLocation, logger logging.Logger) *Handler {
 	return &Handler{
 		services: services,
 		logger:   logger,

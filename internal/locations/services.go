@@ -3,6 +3,7 @@ package locations
 import (
 	"context"
 
+	"github.com/iriskin77/testgo/pkg/logging"
 	"go.uber.org/zap"
 )
 
@@ -15,10 +16,10 @@ type ServiceLocation interface {
 type serviceLocation struct {
 	// создаем структуру, которая принимает репозиторий для работы с БД
 	repo   RepositoryLocation
-	logger *zap.Logger
+	logger logging.Logger
 }
 
-func NewLocationService(repo RepositoryLocation, logger *zap.Logger) *serviceLocation {
+func NewLocationService(repo RepositoryLocation, logger logging.Logger) *serviceLocation {
 	// Конструктор: принимает репозиторий, возваращает сервис с репозиторием
 	return &serviceLocation{repo: repo, logger: logger}
 }

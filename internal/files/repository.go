@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"go.uber.org/zap"
 )
 
 const (
@@ -20,10 +20,10 @@ type RepositoryFile interface {
 
 type FileDB struct {
 	db     *pgxpool.Pool
-	logger *zap.Logger
+	logger logging.Logger
 }
 
-func NewFileDB(db *pgxpool.Pool, logger *zap.Logger) *FileDB {
+func NewFileDB(db *pgxpool.Pool, logger logging.Logger) *FileDB {
 	return &FileDB{
 		db:     db,
 		logger: logger,

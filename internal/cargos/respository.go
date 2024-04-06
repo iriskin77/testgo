@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/iriskin77/testgo/internal/locations"
+	"github.com/iriskin77/testgo/pkg/logging"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
@@ -23,10 +24,10 @@ type RepositoryCargo interface {
 
 type CargoDB struct {
 	db     *pgxpool.Pool
-	logger *zap.Logger
+	logger logging.Logger
 }
 
-func NewCargoDB(db *pgxpool.Pool, logger *zap.Logger) *CargoDB {
+func NewCargoDB(db *pgxpool.Pool, logger logging.Logger) *CargoDB {
 	return &CargoDB{
 		db:     db,
 		logger: logger,

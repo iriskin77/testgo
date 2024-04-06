@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
@@ -20,10 +21,10 @@ type RepositoryLocation interface {
 
 type LocationDB struct {
 	db     *pgxpool.Pool
-	logger *zap.Logger
+	logger logging.Logger
 }
 
-func NewLocationDB(db *pgxpool.Pool, logger *zap.Logger) *LocationDB {
+func NewLocationDB(db *pgxpool.Pool, logger logging.Logger) *LocationDB {
 	return &LocationDB{db: db, logger: logger}
 }
 

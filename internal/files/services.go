@@ -3,7 +3,7 @@ package files
 import (
 	"context"
 
-	"go.uber.org/zap"
+	"github.com/iriskin77/testgo/pkg/logging"
 )
 
 type ServiceFile interface {
@@ -14,10 +14,10 @@ type ServiceFile interface {
 type serviceFile struct {
 	// создаем структуру, которая принимает репозиторий для работы с БД
 	repo   RepositoryFile
-	logger *zap.Logger
+	logger logging.Logger
 }
 
-func NewFileService(repo RepositoryFile, logger *zap.Logger) *serviceFile {
+func NewFileService(repo RepositoryFile, logger logging.Logger) *serviceFile {
 	// Конструктор: принимает репозиторий, возваращает сервис с репозиторием
 	return &serviceFile{
 		repo:   repo,

@@ -1,0 +1,8 @@
+time="2024-04-06T13:59:13+05:00" level=info msg="starting API Server" func="server.go:41" file="github.com/iriskin77/testgo/server.(*APIServer).RunServer()"
+time="2024-04-06T13:59:13+05:00" level=info msg="db has been initialized" func="server.go:66" file="github.com/iriskin77/testgo/server.(*APIServer).RunServer()"
+time="2024-04-06T13:59:13+05:00" level=info msg="handlers have been registered" func="server.go:78" file="github.com/iriskin77/testgo/server.(*APIServer).RunServer()"
+time="2024-04-06T14:04:25+05:00" level=info msg="logger has been initialized" func="server.go:39" file="github.com/iriskin77/testgo/server.(*APIServer).RunServer()"
+time="2024-04-06T14:04:25+05:00" level=info msg="config has been initialized" func="server.go:45" file="github.com/iriskin77/testgo/server.(*APIServer).RunServer()"
+time="2024-04-06T14:04:25+05:00" level=info msg="db has been initialized" func="server.go:64" file="github.com/iriskin77/testgo/server.(*APIServer).RunServer()"
+time="2024-04-06T14:04:25+05:00" level=info msg="handlers have been initialized" func="server.go:76" file="github.com/iriskin77/testgo/server.(*APIServer).RunServer()"
+time="2024-04-06T14:04:25+05:00" level=info msg="starting API Server" func="server.go:78" file="github.com/iriskin77/testgo/server.(*APIServer).RunServer()"

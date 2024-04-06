@@ -9,13 +9,11 @@ import (
 	"github.com/iriskin77/testgo/internal/cars"
 	"github.com/iriskin77/testgo/internal/files"
 	"github.com/iriskin77/testgo/internal/locations"
+	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/iriskin77/testgo/storage"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 type APIServer struct {
@@ -34,18 +32,17 @@ func NewApiServer(serverConfig *ConfigServer) *APIServer {
 func (s *APIServer) RunServer() error {
 
 	// Инициализируем логгер
-	logger, err := initLogger()
-	if err != nil {
-		return err
-	}
+	logging.InitLogger()
 
-	logger.Info("starting API Server")
+	logger := logging.GetLogger()
+
+	logger.Info("logger has been initialized")
 
 	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initialization config %s", err.Error())
+		logger.Fatalf("error initialization config %s", err.Error())
 	}
 
-	// fmt.Println(viper.GetString("db.host"))
+	logger.Info("config has been initialized")
 
 	// Инициализруем подключение к БД
 
@@ -61,7 +58,7 @@ func (s *APIServer) RunServer() error {
 	})
 
 	if err != nil {
-		logger.Error("failed to initialize db: %s", zap.Error(err))
+		logger.Fatalf("error initialization config %s", err.Error())
 	}
 
 	logger.Info("db has been initialized")
@@ -76,21 +73,12 @@ func (s *APIServer) RunServer() error {
 	handlersLocations.RegisterLocationsHandler(s.router)
 	handersCargos.RegisterCargoHandlers(s.router)
 
-	logger.Info("handlers have been registered")
+	logger.Info("handlers have been initialized")
+
+	logger.Info("starting API Server")
 
 	return http.ListenAndServe(s.serverConfig.BindAddr, s.router)
 
-}
-
-func initLogger() (*zap.Logger, error) {
-	return zap.Config{
-		Level:            zap.NewAtomicLevelAt(zapcore.DebugLevel),
-		Development:      true,
-		Encoding:         "json",
-		EncoderConfig:    zap.NewProductionEncoderConfig(),
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
-	}.Build()
 }
 
 func initConfig() error {
@@ -99,7 +87,7 @@ func initConfig() error {
 	return viper.ReadInConfig()
 }
 
-func InitCars(db *pgxpool.Pool, logger *zap.Logger) *cars.Handler {
+func InitCars(db *pgxpool.Pool, logger logging.Logger) *cars.Handler {
 
 	repo := cars.NewCarDB(db, logger)
 	service := cars.NewCarService(repo, logger)
@@ -109,7 +97,7 @@ func InitCars(db *pgxpool.Pool, logger *zap.Logger) *cars.Handler {
 
 }
 
-func InitFiles(db *pgxpool.Pool, logger *zap.Logger) *files.Handler {
+func InitFiles(db *pgxpool.Pool, logger logging.Logger) *files.Handler {
 
 	repo := files.NewFileDB(db, logger)
 	service := files.NewFileService(repo, logger)
@@ -119,7 +107,7 @@ func InitFiles(db *pgxpool.Pool, logger *zap.Logger) *files.Handler {
 
 }
 
-func InitLocations(db *pgxpool.Pool, logger *zap.Logger) *locations.Handler {
+func InitLocations(db *pgxpool.Pool, logger logging.Logger) *locations.Handler {
 
 	repo := locations.NewLocationDB(db, logger)
 	service := locations.NewLocationService(repo, logger)
@@ -129,7 +117,7 @@ func InitLocations(db *pgxpool.Pool, logger *zap.Logger) *locations.Handler {
 
 }
 
-func InitCargo(db *pgxpool.Pool, logger *zap.Logger) *cargos.Handler {
+func InitCargo(db *pgxpool.Pool, logger logging.Logger) *cargos.Handler {
 
 	repo := cargos.NewCargoDB(db, logger)
 	service := cargos.NewCargoService(repo, logger)

@@ -3,7 +3,7 @@ package cargos
 import (
 	"context"
 
-	"go.uber.org/zap"
+	"github.com/iriskin77/testgo/pkg/logging"
 )
 
 type ServiceCar interface {
@@ -16,10 +16,10 @@ type ServiceCar interface {
 type serviceCargo struct {
 	// создаем структуру, которая принимает репозиторий для работы с БД
 	repo   RepositoryCargo
-	logger *zap.Logger
+	logger logging.Logger
 }
 
-func NewCargoService(repo RepositoryCargo, logger *zap.Logger) *serviceCargo {
+func NewCargoService(repo RepositoryCargo, logger logging.Logger) *serviceCargo {
 	// Конструктор: принимает репозиторий, возваращает сервис с репозиторием
 	return &serviceCargo{
 		repo:   repo,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
@@ -19,10 +20,10 @@ type RepositoryCar interface {
 
 type CarDB struct {
 	db     *pgxpool.Pool
-	logger *zap.Logger
+	logger logging.Logger
 }
 
-func NewCarDB(db *pgxpool.Pool, logger *zap.Logger) *CarDB {
+func NewCarDB(db *pgxpool.Pool, logger logging.Logger) *CarDB {
 	return &CarDB{
 		db:     db,
 		logger: logger,

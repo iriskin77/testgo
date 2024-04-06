@@ -70,7 +70,7 @@ func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Re
 
 	if err != nil {
 		h.logger.Errorf("Failed to retrieve GetLocationById from db in handlers %s", err.Error())
-		http.Error(response, err.Error(), http.StatusInternalServerError)
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 
 	}
 

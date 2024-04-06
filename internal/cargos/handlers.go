@@ -37,11 +37,14 @@ func (h *Handler) RegisterCargoHandlers(router *mux.Router) {
 func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Request) {
 
 	newCargo := &CargoRequest{}
+	defer request.Body.Close()
 
-	json.NewDecoder(request.Body).Decode(newCargo)
+	if err := json.NewDecoder(request.Body).Decode(newCargo); err != nil {
+		h.logger.Errorf("Failed to decode request data(CreateCargo) %s", err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
+	}
 
 	cargoId, err := h.services.CreateCargo(context.Background(), newCargo)
-
 	if err != nil {
 		h.logger.Errorf("Failed to CreateCargo %s", err.Error())
 		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
@@ -49,7 +52,6 @@ func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Reques
 	}
 
 	resp, err := json.Marshal(cargoId)
-
 	if err != nil {
 		h.logger.Errorf("Failed to Marshal response (cargo id) %s", err.Error())
 		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
@@ -57,7 +59,6 @@ func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Reques
 	}
 
 	response.Write(resp)
-
 }
 
 func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.Request) {

@@ -28,6 +28,7 @@ func NewCargoService(repo RepositoryCargo, logger logging.Logger) *serviceCargo 
 }
 
 func (cr *serviceCargo) CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error) {
+
 	newCarId, err := cr.repo.CreateCargo(ctx, cargo)
 
 	if err != nil {

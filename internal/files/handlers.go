@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	file         = "/files"
-	filedownload = "/files/{id}"
+	fileURL      = "/api/file"
+	fileGetUrlId = "/api/files/{id}"
 )
 
 type Handler struct {
@@ -32,8 +32,8 @@ func NewHandler(services ServiceFile, logger logging.Logger) *Handler {
 }
 
 func (h *Handler) RegisterFileHandlers(router *mux.Router) {
-	router.HandleFunc(file, h.UploadFile).Methods("POST")
-	router.HandleFunc(filedownload, h.DownloadFile).Methods("GET")
+	router.HandleFunc(fileURL, h.UploadFile).Methods("POST")
+	router.HandleFunc(fileGetUrlId, h.DownloadFile).Methods("GET")
 }
 
 func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request) {

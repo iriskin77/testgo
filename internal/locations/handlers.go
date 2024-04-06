@@ -12,6 +12,12 @@ import (
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
+const (
+	locationURL   = "/api/location"
+	locationsURL  = "/api/locations"
+	locationIdURL = "/api/location/{id}"
+)
+
 type Handler struct {
 	services ServiceLocation
 	logger   logging.Logger
@@ -25,9 +31,9 @@ func NewHandler(services ServiceLocation, logger logging.Logger) *Handler {
 }
 
 func (h *Handler) RegisterLocationsHandler(router *mux.Router) {
-	router.HandleFunc("/location", h.CreateLocation).Methods("Post")
-	router.HandleFunc("/location/{id}", h.GetLocationById).Methods("Get")
-	router.HandleFunc("/locations", h.GetLocationsList).Methods("Get")
+	router.HandleFunc(locationURL, h.CreateLocation).Methods("Post")
+	router.HandleFunc(locationIdURL, h.GetLocationById).Methods("Get")
+	router.HandleFunc(locationsURL, h.GetLocationsList).Methods("Get")
 }
 
 func (h *Handler) CreateLocation(response http.ResponseWriter, request *http.Request) {

@@ -10,6 +10,11 @@ import (
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
+const (
+	carCreateUrl = "/api/create-car"
+	carUpdateUrl = "/api/update-car"
+)
+
 type Handler struct {
 	services ServiceCar
 	logger   logging.Logger
@@ -23,8 +28,8 @@ func NewHandler(services ServiceCar, logger logging.Logger) *Handler {
 }
 
 func (h *Handler) RegisterCarHandlers(router *mux.Router) {
-	router.HandleFunc("/createcar", h.CreateCar).Methods("POST")
-	router.HandleFunc("/update_car", h.UpdateCarById).Methods("PUT")
+	router.HandleFunc(carCreateUrl, h.CreateCar).Methods("POST")
+	router.HandleFunc(carUpdateUrl, h.UpdateCarById).Methods("PUT")
 }
 
 func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request) {

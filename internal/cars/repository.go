@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iriskin77/testgo/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
@@ -14,7 +13,7 @@ const (
 )
 
 type RepositoryCar interface {
-	CreateCar(ctx context.Context, car *models.CarRequest) (int, error)
+	CreateCar(ctx context.Context, car *CarRequest) (int, error)
 	UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) (int, error)
 }
 
@@ -30,7 +29,7 @@ func NewCarDB(db *pgxpool.Pool, logger *zap.Logger) *CarDB {
 	}
 }
 
-func (c *CarDB) CreateCar(ctx context.Context, car *models.CarRequest) (int, error) {
+func (c *CarDB) CreateCar(ctx context.Context, car *CarRequest) (int, error) {
 
 	var locId int
 

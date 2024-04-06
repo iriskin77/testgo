@@ -3,14 +3,13 @@ package locations
 import (
 	"context"
 
-	"github.com/iriskin77/testgo/models"
 	"go.uber.org/zap"
 )
 
 type ServiceLocation interface {
-	CreateLocation(ctx context.Context, location *models.Location) (int, error)
-	GetLocationById(ctx context.Context, id int) (*models.Location, error)
-	GetLocationsList(ctx context.Context) ([]models.Location, error)
+	CreateLocation(ctx context.Context, location *Location) (int, error)
+	GetLocationById(ctx context.Context, id int) (*Location, error)
+	GetLocationsList(ctx context.Context) ([]Location, error)
 }
 
 type serviceLocation struct {
@@ -24,7 +23,7 @@ func NewLocationService(repo RepositoryLocation, logger *zap.Logger) *serviceLoc
 	return &serviceLocation{repo: repo, logger: logger}
 }
 
-func (sl *serviceLocation) CreateLocation(ctx context.Context, location *models.Location) (int, error) {
+func (sl *serviceLocation) CreateLocation(ctx context.Context, location *Location) (int, error) {
 	newLocation, err := sl.repo.CreateLocation(ctx, location)
 
 	if err != nil {
@@ -35,7 +34,7 @@ func (sl *serviceLocation) CreateLocation(ctx context.Context, location *models.
 	return newLocation, nil
 }
 
-func (sl *serviceLocation) GetLocationById(ctx context.Context, id int) (*models.Location, error) {
+func (sl *serviceLocation) GetLocationById(ctx context.Context, id int) (*Location, error) {
 
 	locationById, err := sl.repo.GetLocationById(ctx, id)
 
@@ -48,7 +47,7 @@ func (sl *serviceLocation) GetLocationById(ctx context.Context, id int) (*models
 
 }
 
-func (sl *serviceLocation) GetLocationsList(ctx context.Context) ([]models.Location, error) {
+func (sl *serviceLocation) GetLocationsList(ctx context.Context) ([]Location, error) {
 	locationsList, err := sl.repo.GetLocationsList(ctx)
 
 	if err != nil {

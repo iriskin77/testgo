@@ -10,8 +10,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/iriskin77/testgo/errors"
-	"github.com/iriskin77/testgo/models"
+	"github.com/iriskin77/testgo/internal/errors"
 	"go.uber.org/zap"
 )
 
@@ -95,7 +94,7 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	}
 
 	// Если файла с таким именем нет, то сохраняем файл в БД
-	newFile := &models.File{
+	newFile := &File{
 		Name:      handler.Filename,
 		File_path: pathFile,
 	}

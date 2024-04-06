@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iriskin77/testgo/models"
+	"github.com/iriskin77/testgo/internal/locations"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
@@ -79,8 +80,8 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	var cars []CarResponse
 
 	// locations for cargo
-	var CargoPickUpLocation models.Location
-	var CargoDeliveryLocation models.Location
+	var CargoPickUpLocation locations.Location
+	var CargoDeliveryLocation locations.Location
 
 	var cargoPickUpId int
 	var cargoDeliveryId int

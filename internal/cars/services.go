@@ -3,12 +3,11 @@ package cars
 import (
 	"context"
 
-	"github.com/iriskin77/testgo/models"
 	"go.uber.org/zap"
 )
 
 type ServiceCar interface {
-	CreateCar(ctx context.Context, car *models.CarRequest) (int, error)
+	CreateCar(ctx context.Context, car *CarRequest) (int, error)
 	UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) (int, error)
 }
 
@@ -25,7 +24,7 @@ func NewCarService(repo RepositoryCar, logger *zap.Logger) *serviceCar {
 		logger: logger}
 }
 
-func (scar *serviceCar) CreateCar(ctx context.Context, car *models.CarRequest) (int, error) {
+func (scar *serviceCar) CreateCar(ctx context.Context, car *CarRequest) (int, error) {
 	carId, err := scar.repo.CreateCar(ctx, car)
 
 	if err != nil {

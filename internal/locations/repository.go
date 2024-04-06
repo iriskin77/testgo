@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iriskin77/testgo/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
@@ -14,9 +13,9 @@ const (
 )
 
 type RepositoryLocation interface {
-	CreateLocation(ctx context.Context, location *models.Location) (int, error)
-	GetLocationById(ctx context.Context, id int) (*models.Location, error)
-	GetLocationsList(ctx context.Context) ([]models.Location, error)
+	CreateLocation(ctx context.Context, location *Location) (int, error)
+	GetLocationById(ctx context.Context, id int) (*Location, error)
+	GetLocationsList(ctx context.Context) ([]Location, error)
 }
 
 type LocationDB struct {
@@ -28,7 +27,7 @@ func NewLocationDB(db *pgxpool.Pool, logger *zap.Logger) *LocationDB {
 	return &LocationDB{db: db, logger: logger}
 }
 
-func (lc *LocationDB) CreateLocation(ctx context.Context, location *models.Location) (int, error) {
+func (lc *LocationDB) CreateLocation(ctx context.Context, location *Location) (int, error) {
 
 	var id int
 
@@ -43,9 +42,9 @@ func (lc *LocationDB) CreateLocation(ctx context.Context, location *models.Locat
 
 }
 
-func (lc *LocationDB) GetLocationById(ctx context.Context, id int) (*models.Location, error) {
+func (lc *LocationDB) GetLocationById(ctx context.Context, id int) (*Location, error) {
 
-	var locationById models.Location
+	var locationById Location
 
 	query := fmt.Sprintf("SELECT id, city, state, zip, latitude, longitude, created_at FROM %s WHERE id = $1", locationsTable)
 
@@ -65,9 +64,9 @@ func (lc *LocationDB) GetLocationById(ctx context.Context, id int) (*models.Loca
 
 }
 
-func (lc *LocationDB) GetLocationsList(ctx context.Context) ([]models.Location, error) {
+func (lc *LocationDB) GetLocationsList(ctx context.Context) ([]Location, error) {
 
-	locationsList := make([]models.Location, 0)
+	locationsList := make([]Location, 0)
 
 	query := fmt.Sprintf("SELECT id, city, state, zip, latitude, longitude, created_at FROM %s", locationsTable)
 
@@ -79,7 +78,7 @@ func (lc *LocationDB) GetLocationsList(ctx context.Context) ([]models.Location, 
 	}
 
 	for rowsLocations.Next() {
-		var loc models.Location
+		var loc Location
 
 		err = rowsLocations.Scan(
 			&loc.Id,

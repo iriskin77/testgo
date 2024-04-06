@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iriskin77/testgo/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
@@ -15,8 +14,8 @@ const (
 )
 
 type RepositoryFile interface {
-	UploadFile(ctx context.Context, file *models.File) (int, error)
-	DownloadFile(ctx context.Context, id int) (*models.File, error)
+	UploadFile(ctx context.Context, file *File) (int, error)
+	DownloadFile(ctx context.Context, id int) (*File, error)
 }
 
 type FileDB struct {
@@ -31,7 +30,7 @@ func NewFileDB(db *pgxpool.Pool, logger *zap.Logger) *FileDB {
 	}
 }
 
-func (f *FileDB) UploadFile(ctx context.Context, file *models.File) (int, error) {
+func (f *FileDB) UploadFile(ctx context.Context, file *File) (int, error) {
 	var id int
 
 	query := fmt.Sprintf("INSERT INTO %s (name, file_path) VALUES ($1, $2) RETURNING id", filesTable)
@@ -42,9 +41,9 @@ func (f *FileDB) UploadFile(ctx context.Context, file *models.File) (int, error)
 	return id, nil
 }
 
-func (f *FileDB) DownloadFile(ctx context.Context, id int) (*models.File, error) {
+func (f *FileDB) DownloadFile(ctx context.Context, id int) (*File, error) {
 
-	var fileById models.File
+	var fileById File
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", filesTable)
 

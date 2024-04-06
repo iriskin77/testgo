@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/iriskin77/testgo/errors"
+	"github.com/iriskin77/testgo/internal/errors"
 	"go.uber.org/zap"
 )
 

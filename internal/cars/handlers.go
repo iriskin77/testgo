@@ -6,8 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/iriskin77/testgo/errors"
-	"github.com/iriskin77/testgo/models"
+	"github.com/iriskin77/testgo/internal/errors"
 	"go.uber.org/zap"
 )
 
@@ -30,7 +29,7 @@ func (h *Handler) RegisterCarHandlers(router *mux.Router) {
 
 func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request) {
 
-	newCar := &models.CarRequest{}
+	newCar := &CarRequest{}
 
 	json.NewDecoder(request.Body).Decode(newCar)
 

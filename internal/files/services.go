@@ -3,13 +3,12 @@ package files
 import (
 	"context"
 
-	"github.com/iriskin77/testgo/models"
 	"go.uber.org/zap"
 )
 
 type ServiceFile interface {
-	UploadFile(ctx context.Context, file *models.File) (int, error)
-	DownloadFile(ctx context.Context, id int) (*models.File, error)
+	UploadFile(ctx context.Context, file *File) (int, error)
+	DownloadFile(ctx context.Context, id int) (*File, error)
 }
 
 type serviceFile struct {
@@ -26,12 +25,12 @@ func NewFileService(repo RepositoryFile, logger *zap.Logger) *serviceFile {
 	}
 }
 
-func (s *serviceFile) UploadFile(ctx context.Context, file *models.File) (int, error) {
+func (s *serviceFile) UploadFile(ctx context.Context, file *File) (int, error) {
 	fileId, _ := s.repo.UploadFile(ctx, file)
 	return fileId, nil
 }
 
-func (s *serviceFile) DownloadFile(ctx context.Context, id int) (*models.File, error) {
+func (s *serviceFile) DownloadFile(ctx context.Context, id int) (*File, error) {
 	file, err := s.repo.DownloadFile(ctx, id)
 
 	if err != nil {

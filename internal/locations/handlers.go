@@ -8,8 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/iriskin77/testgo/errors"
-	"github.com/iriskin77/testgo/models"
+	"github.com/iriskin77/testgo/internal/errors"
 	"go.uber.org/zap"
 )
 
@@ -33,7 +32,7 @@ func (h *Handler) RegisterLocationsHandler(router *mux.Router) {
 
 func (h *Handler) CreateLocation(response http.ResponseWriter, request *http.Request) {
 
-	newLocation := &models.Location{}
+	newLocation := &Location{}
 
 	json.NewDecoder(request.Body).Decode(newLocation)
 

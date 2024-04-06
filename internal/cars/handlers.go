@@ -42,7 +42,7 @@ func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request)
 
 	if err != nil {
 		h.logger.Errorf("Failed to CreateCar %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -50,7 +50,7 @@ func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request)
 
 	if err != nil {
 		h.logger.Errorf("Failed to Marshal response (car id) %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -68,7 +68,7 @@ func (h *Handler) UpdateCarById(response http.ResponseWriter, request *http.Requ
 
 	if err != nil {
 		h.logger.Errorf("Failed to update car by id %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -76,7 +76,7 @@ func (h *Handler) UpdateCarById(response http.ResponseWriter, request *http.Requ
 
 	if err != nil {
 		h.logger.Errorf("Failed to Marshal response (car id) %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 

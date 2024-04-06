@@ -43,7 +43,7 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	file, handler, err := request.FormFile("file")
 	if err != nil {
 		h.logger.Errorf("Failed to CreateLocation in handlers %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -53,7 +53,7 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	err = os.MkdirAll("./uploads", os.ModePerm)
 	if err != nil {
 		h.logger.Errorf("Failed to Create dir uploads to store files %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -65,7 +65,7 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	// Проверяем, есть ли в папке такой файл
 	if _, err := os.Stat(pathFile); err == nil {
 		h.logger.Errorf("Failed to find path to the file %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -74,14 +74,14 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	// Проверяем формат файла
 	if fileExt != ".csv" {
 		h.logger.Errorf("File should be .csv %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	openedFile, err := os.OpenFile(pathFile, os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		h.logger.Errorf("Cannot open the file %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer openedFile.Close()
@@ -89,7 +89,7 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 	_, err = io.Copy(openedFile, file)
 	if err != nil {
 		h.logger.Errorf("Failed to copy file to dir uploads (file storage) %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -103,13 +103,13 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 
 	if err != nil {
 		h.logger.Errorf("Failed to upload file path to DB %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if id, err := json.Marshal(fileId); err != nil {
 		h.logger.Errorf("Failed to marshal file id as a response from web-server %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	} else {
 		response.Write(id)
@@ -126,7 +126,7 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 
 	if err != nil {
 		h.logger.Errorf("Failed to parse file id from user request %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -134,7 +134,7 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 
 	if err != nil {
 		h.logger.Errorf("Failed to get file path from DB %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -142,7 +142,7 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 
 	if err != nil {
 		h.logger.Errorf("Failed to get file path from DB %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusNotFound, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusNotFound, err.Error())
 		return
 	}
 

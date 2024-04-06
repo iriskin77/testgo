@@ -81,7 +81,7 @@ func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Re
 
 	if err != nil {
 		h.logger.Errorf("Failed to retrieve GetLocationById from db in handlers %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -89,7 +89,7 @@ func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Re
 
 	if err != nil {
 		h.logger.Errorf("Failed to marshal GetLocationById from db in handlers %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 

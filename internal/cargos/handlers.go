@@ -45,7 +45,7 @@ func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Reques
 
 	if err != nil {
 		h.logger.Errorf("Failed to CreateCargo %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -53,7 +53,7 @@ func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Reques
 
 	if err != nil {
 		h.logger.Errorf("Failed to Marshal response (cargo id) %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.R
 
 	if err != nil {
 		h.logger.Errorf("Failed to parse id from client request %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -78,7 +78,7 @@ func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.R
 
 	if err != nil {
 		h.logger.Errorf("Failed to get the cargo and the closest cars from DB %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -86,7 +86,7 @@ func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.R
 
 	if err != nil {
 		h.logger.Errorf("Failed to parse response (cargo and cars) %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -99,7 +99,7 @@ func (h *Handler) GetListCargos(response http.ResponseWriter, request *http.Requ
 
 	if err != nil {
 		h.logger.Errorf("Failed to get list cargos and the closest cars from DB %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -107,7 +107,7 @@ func (h *Handler) GetListCargos(response http.ResponseWriter, request *http.Requ
 
 	if err != nil {
 		h.logger.Errorf("Failed to parse response (cargo and cars) %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -131,7 +131,7 @@ func (h *Handler) UpdateCargoById(response http.ResponseWriter, request *http.Re
 
 	if err != nil {
 		h.logger.Errorf("Failed to parse response (cargo and cars) %s", err.Error())
-		errors.NewErrorClientResponse(request.Context(), response, http.StatusInternalServerError, err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
 

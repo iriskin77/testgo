@@ -12,9 +12,8 @@ import (
 )
 
 const (
-	cargoCreateUrl = "/api/create-cargo"
-	cargoGetCUrl   = "/api/cargo/{id}"
-	cargosUrl      = "/api/list-cargos"
+	cargoUrl  = "/api/cargo/{id}"
+	cargosUrl = "/api/cargos"
 )
 
 type Handler struct {
@@ -30,8 +29,8 @@ func NewHandler(services ServiceCar, logger logging.Logger) *Handler {
 }
 
 func (h *Handler) RegisterCargoHandlers(router *mux.Router) {
-	router.HandleFunc(cargoCreateUrl, h.CreateCargo).Methods("POST")
-	router.HandleFunc(cargoGetCUrl, h.GetCargoByIDCars).Methods("GET")
+	router.HandleFunc(cargosUrl, h.CreateCargo).Methods("POST")
+	router.HandleFunc(cargoUrl, h.GetCargoByIDCars).Methods("GET")
 	router.HandleFunc(cargosUrl, h.GetListCargos).Methods("GET")
 }
 

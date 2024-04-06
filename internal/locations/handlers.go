@@ -13,9 +13,8 @@ import (
 )
 
 const (
-	locationURL   = "/api/location"
-	locationsURL  = "/api/locations"
-	locationIdURL = "/api/location/{id}"
+	locationUrl  = "/api/location/{id}"
+	locationsUrl = "/api/locations"
 )
 
 type Handler struct {
@@ -31,9 +30,9 @@ func NewHandler(services ServiceLocation, logger logging.Logger) *Handler {
 }
 
 func (h *Handler) RegisterLocationsHandler(router *mux.Router) {
-	router.HandleFunc(locationURL, h.CreateLocation).Methods("Post")
-	router.HandleFunc(locationIdURL, h.GetLocationById).Methods("Get")
-	router.HandleFunc(locationsURL, h.GetLocationsList).Methods("Get")
+	router.HandleFunc(locationsUrl, h.CreateLocation).Methods("Post")
+	router.HandleFunc(locationUrl, h.GetLocationById).Methods("Get")
+	router.HandleFunc(locationsUrl, h.GetLocationsList).Methods("Get")
 }
 
 func (h *Handler) CreateLocation(response http.ResponseWriter, request *http.Request) {

@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	carCreateUrl = "/api/create-car"
-	carUpdateUrl = "/api/update-car"
+	carUrl  = "/api/car/{id}"
+	carsUrl = "/api/cars"
 )
 
 type Handler struct {
@@ -28,8 +28,8 @@ func NewHandler(services ServiceCar, logger logging.Logger) *Handler {
 }
 
 func (h *Handler) RegisterCarHandlers(router *mux.Router) {
-	router.HandleFunc(carCreateUrl, h.CreateCar).Methods("POST")
-	router.HandleFunc(carUpdateUrl, h.UpdateCarById).Methods("PUT")
+	router.HandleFunc(carsUrl, h.CreateCar).Methods("POST")
+	router.HandleFunc(carUrl, h.UpdateCarById).Methods("PUT")
 }
 
 func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request) {

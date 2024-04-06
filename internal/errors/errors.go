@@ -5,27 +5,27 @@ import (
 	"net/http"
 )
 
-type ClientResponse struct {
+type ClientErrorResponse struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
 }
 
-func NewErrorClientResponse(w http.ResponseWriter, statusCode int, message string) {
-	response := ClientResponse{
+func NewErrorClientResponse(response http.ResponseWriter, statusCode int, message string) {
+	errorResponse := ClientErrorResponse{
 		Status:  statusCode,
 		Message: message,
 	}
-	sendData(w, response)
+	SendErrorResponse(response, errorResponse)
 }
 
-func sendData(w http.ResponseWriter, response ClientResponse) {
-	responseJSON, err := json.Marshal(response)
+func SendErrorResponse(response http.ResponseWriter, errorResponse ClientErrorResponse) {
+	responseJSON, err := json.Marshal(errorResponse)
 	if err != nil {
-		http.Error(w, "Failed to marshal JSON", http.StatusInternalServerError)
+		http.Error(response, "Failed to marshal JSON", http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(responseJSON)
+	response.Header().Set("Content-Type", "application/json")
+	response.WriteHeader(http.StatusOK)
+	response.Write(responseJSON)
 }

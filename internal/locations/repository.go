@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
+	"github.com/iriskin77/testgo/internal/middleware"
 	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -15,7 +17,7 @@ const (
 type RepositoryLocation interface {
 	CreateLocation(ctx context.Context, location *Location) (int, error)
 	GetLocationById(ctx context.Context, id int) (*Location, error)
-	GetLocationsList(ctx context.Context) ([]Location, error)
+	GetLocationsList(ctx context.Context, sortOptions middleware.SortOptions) ([]Location, error)
 }
 
 type LocationDB struct {
@@ -64,13 +66,26 @@ func (lc *LocationDB) GetLocationById(ctx context.Context, id int) (*Location, e
 
 }
 
-func (lc *LocationDB) GetLocationsList(ctx context.Context) ([]Location, error) {
+func (lc *LocationDB) GetLocationsList(ctx context.Context, sortOptions middleware.SortOptions) ([]Location, error) {
 
 	locationsList := make([]Location, 0)
 
-	query := fmt.Sprintf("SELECT id, city, state, zip, latitude, longitude, created_at FROM %s", locationsTable)
+	qb := sq.Select("id", "city", "state", "zip", "latitude", "longitude", "created_at").
+		From(locationsTable)
 
-	rowsLocations, err := lc.db.Query(ctx, query)
+	if sortOptions.Field != "" && sortOptions.Order != "" {
+		qb.OrderBy(fmt.Sprintf("%s %s", sortOptions.Field, sortOptions.Order))
+	}
+
+	query, sortOpt, err := qb.ToSql()
+
+	if err != nil {
+		return locationsList, err
+	}
+
+	//query := fmt.Sprintf("SELECT id, city, state, zip, latitude, longitude, created_at FROM %s", locationsTable)
+
+	rowsLocations, err := lc.db.Query(ctx, query, sortOpt...)
 
 	if err != nil {
 		lc.logger.Errorf("Failed to retrieve list locations from db %s", err.Error())

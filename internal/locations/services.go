@@ -3,13 +3,14 @@ package locations
 import (
 	"context"
 
+	"github.com/iriskin77/testgo/internal/middleware"
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
 type ServiceLocation interface {
 	CreateLocation(ctx context.Context, location *Location) (int, error)
 	GetLocationById(ctx context.Context, id int) (*Location, error)
-	GetLocationsList(ctx context.Context) ([]Location, error)
+	GetLocationsList(ctx context.Context, sortOptions middleware.SortOptions) ([]Location, error)
 }
 
 type serviceLocation struct {
@@ -47,8 +48,8 @@ func (sl *serviceLocation) GetLocationById(ctx context.Context, id int) (*Locati
 
 }
 
-func (sl *serviceLocation) GetLocationsList(ctx context.Context) ([]Location, error) {
-	locationsList, err := sl.repo.GetLocationsList(ctx)
+func (sl *serviceLocation) GetLocationsList(ctx context.Context, sortOptions middleware.SortOptions) ([]Location, error) {
+	locationsList, err := sl.repo.GetLocationsList(ctx, sortOptions)
 
 	if err != nil {
 		sl.logger.Errorf("Failed to GetLocationsList in service %s", err.Error())

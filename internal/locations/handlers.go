@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/internal/errors"
+	"github.com/iriskin77/testgo/internal/middleware"
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
@@ -32,7 +33,7 @@ func NewHandler(services ServiceLocation, logger logging.Logger) *Handler {
 func (h *Handler) RegisterLocationsHandler(router *mux.Router) {
 	router.HandleFunc(locationsUrl, h.CreateLocation).Methods("Post")
 	router.HandleFunc(locationUrl, h.GetLocationById).Methods("Get")
-	router.HandleFunc(locationsUrl, h.GetLocationsList).Methods("Get")
+	router.HandleFunc(locationsUrl, middleware.Middleware(h.GetLocationsList)).Methods("Get")
 }
 
 func (h *Handler) CreateLocation(response http.ResponseWriter, request *http.Request) {
@@ -98,19 +99,25 @@ func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Re
 
 func (h *Handler) GetLocationsList(response http.ResponseWriter, request *http.Request) {
 
-	locationsList, err := h.services.GetLocationsList(context.Background())
+	sortOptions := request.Context().Value(middleware.OptionsContextKey).(middleware.SortOptions)
+
+	fmt.Println("sortOptions", sortOptions)
+
+	locationsList, err := h.services.GetLocationsList(context.Background(), sortOptions)
 
 	if err != nil {
 		h.logger.Errorf("Failed to retrieve GetLocationsList from db in handlers %s", err.Error())
-		response.WriteHeader(http.StatusInternalServerError)
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 	}
 
 	resp, err := json.Marshal(locationsList)
 
 	if err != nil {
 		h.logger.Errorf("Failed to marshal GetLocationsList from db in handlers %s", err.Error())
-		response.WriteHeader(http.StatusInternalServerError)
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 	}
+
+	response.Header().Set("Content-Type", "application/json")
 
 	response.Write(resp)
 

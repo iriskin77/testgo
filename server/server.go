@@ -126,3 +126,14 @@ func InitCargo(db *pgxpool.Pool, logger logging.Logger) *cargos.Handler {
 	return handers
 
 }
+
+type Repositories struct {
+	repoCargo     *cargos.CargoDB
+	repoLocations *locations.LocationDB
+	repoFiles     *files.FileDB
+	repoCars      *cars.CarDB
+}
+
+type Services struct{}
+
+type Handlers struct{}

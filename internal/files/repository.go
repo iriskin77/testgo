@@ -77,103 +77,47 @@ func (f *FileDB) BulkInsertLocations(ctx context.Context, id int) (int, error) {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println(1)
+		return 0, err
 	}
 	defer file.Close()
 
 	reader := csv.NewReader(file)
 	reader.Comma = ','
-	//batch := &pgx.Batch{}
 
-	//queryInsert := "INSERT INTO locations (city, state, zip, latitude, longitude) VALUES (@city, @state, @zip, @latitude, @longitude)"
-	//csv_rows := make([][]interface{}, 0)
-	//locationsList := make([]Location, 0)
-	rows1 := make([][]interface{}, 0)
+	rowsInsert := make([][]interface{}, 0)
+
 	for {
-		lst := make([]interface{}, 0)
+
+		listCsvRows := make([]interface{}, 0)
 		record, e := reader.Read()
 		if e != nil {
 			fmt.Println(1)
 			break
 		}
-		//fmt.Println(record)
-
-		// fmt.Println(city)
 		state := record[4]
 		city := record[3]
-		// fmt.Println(state)
 		zip, _ := strconv.Atoi(record[0])
-		// fmt.Println(zip)
 		latitude, _ := strconv.ParseFloat(strings.TrimSpace(record[1]), 64)
-		// fmt.Println(latitude)
 		longitude, _ := strconv.ParseFloat(strings.TrimSpace(record[2]), 64)
-		//feetFloat, _ := strconv.ParseFloat(strings.TrimSpace(variable), 64)
-		//zip_int, _ := strconv.Atoi(zip)
-		// lat_float, _ := strconv.Atoi(latitude)
-		// long_float, _ := strconv.Atoi(longitude)
 
-		lst = append(lst, state, city, zip, latitude, longitude)
-		rows1 = append(rows1, lst)
+		listCsvRows = append(listCsvRows, state, city, zip, latitude, longitude)
+		rowsInsert = append(rowsInsert, listCsvRows)
 
-		// fmt.Println(city)
-		// fmt.Println(state)
-		// fmt.Println(zip)
-		// fmt.Println(latitude)
-		// fmt.Println(longitude)
-
-		//queryInsert := fmt.Sprintf(`INSERT INTO locations (city, state, zip, latitude, longitude)
-		// VALUES (%s, %s, %s, %s, %s)`, city, state, zip, latitude, longitude)
-
-		// args := pgx.NamedArgs{
-		// 	"@city":     city,
-		// 	"@state":    state,
-		// 	"@zip":      zip,
-		// 	"latitude":  12,
-		// 	"longitude": 12,
-		// }
-
-		//fmt.Println(args)
-		//batch.Queue(queryInsert)
 	}
-
-	// for k, v := range rows1 {
-	// 	fmt.Println(k, v)
-	// }
 
 	rows := [][]interface{}{
 		{"Hadley", "Massachusetts", int32(601), float32(44.44), float32(44.44)},
 	}
 
-	//c := ["Hadley", "Massachusetts", int32(601), float32(44.44), float32(44.44)]
-	//rows = append(rows, ["Hadley", "Massachusetts", int32(601), float32(44.44), float32(44.44)])
-
 	fmt.Println(rows)
 
-	copyCount, err := f.db.CopyFrom(
+	CopyFile, err := f.db.CopyFrom(
 		ctx,
 		pgx.Identifier{"locations"},
 		[]string{"city", "state", "zip", "latitude", "longitude"},
-		pgx.CopyFromRows(rows1),
+		pgx.CopyFromRows(rowsInsert),
 	)
 
-	fmt.Println(copyCount)
-
-	// results := f.db.SendBatch(ctx, batch)
-	// defer results.Close()
-	// // results.Exec()
-	// // //defer results.Close()
-	// // f.db.CopyFrom()
-	// fmt.Println(results)
-
-	// for i := 0; 5 > i; i++ {
-	// 	q, err := results.Exec()
-	// 	fmt.Println(q)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// }
-
-	// results.Close()
-	return 1, nil
+	return int(CopyFile), nil
 
 }

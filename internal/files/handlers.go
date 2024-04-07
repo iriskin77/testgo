@@ -34,6 +34,7 @@ func NewHandler(services ServiceFile, logger logging.Logger) *Handler {
 func (h *Handler) RegisterFileHandlers(router *mux.Router) {
 	router.HandleFunc(filesUrl, h.UploadFile).Methods("POST")
 	router.HandleFunc(fileUrl, h.DownloadFile).Methods("GET")
+	router.HandleFunc("/api/upload_file/{id}", h.BulkInsertLocations).Methods("PUT")
 }
 
 func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request) {
@@ -152,5 +153,36 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 	response.Header().Set("Content-Disposition", "attachment; filename="+file.Name)
 
 	http.ServeFile(response, request, file.File_path)
+
+}
+
+func (h *Handler) BulkInsertLocations(response http.ResponseWriter, request *http.Request) {
+
+	vars := mux.Vars(request)
+	id := vars["id"]
+
+	fileId, err := strconv.Atoi(id)
+
+	if err != nil {
+		h.logger.Errorf("Failed to parse file id from user request %s", err.Error())
+		errors.NewErrorClientResponse(response, http.StatusNotFound, err.Error())
+		return
+	}
+
+	fileIdRes, err := h.services.BulkInsertLocations(context.Background(), fileId)
+
+	if err != nil {
+		h.logger.Errorf("Failed to get file path from DB %s", err.Error())
+		errors.NewErrorClientResponse(response, http.StatusNotFound, err.Error())
+		return
+	}
+
+	if id, err := json.Marshal(fileIdRes); err != nil {
+		h.logger.Errorf("Failed to marshal file id as a response from web-server %s", err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+		response.Write(id)
+	}
 
 }

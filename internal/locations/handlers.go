@@ -118,7 +118,6 @@ func (h *Handler) GetLocationsList(response http.ResponseWriter, request *http.R
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-
 	response.Write(resp)
 
 }

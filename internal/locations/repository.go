@@ -83,6 +83,8 @@ func (lc *LocationDB) GetLocationsList(ctx context.Context, sortOptions middlewa
 		return locationsList, err
 	}
 
+	
+
 	//query := fmt.Sprintf("SELECT id, city, state, zip, latitude, longitude, created_at FROM %s", locationsTable)
 
 	rowsLocations, err := lc.db.Query(ctx, query, sortOpt...)
@@ -115,3 +117,4 @@ func (lc *LocationDB) GetLocationsList(ctx context.Context, sortOptions middlewa
 
 	return locationsList, nil
 }
+

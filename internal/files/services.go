@@ -9,6 +9,7 @@ import (
 type ServiceFile interface {
 	UploadFile(ctx context.Context, file *File) (int, error)
 	DownloadFile(ctx context.Context, id int) (*File, error)
+	BulkInsertLocations(ctx context.Context, id int) (int, error)
 }
 
 type serviceFile struct {
@@ -38,4 +39,14 @@ func (s *serviceFile) DownloadFile(ctx context.Context, id int) (*File, error) {
 	}
 
 	return file, nil
+}
+
+func (s *serviceFile) BulkInsertLocations(ctx context.Context, id int) (int, error) {
+	id, err := s.repo.BulkInsertLocations(ctx, id)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }

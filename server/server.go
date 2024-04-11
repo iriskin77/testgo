@@ -63,15 +63,14 @@ func (s *APIServer) RunServer() error {
 
 	logger.Info("db has been initialized")
 
-	handlersCars := InitCars(db, logger)
-	handlersFiles := InitFiles(db, logger)
-	handlersLocations := InitLocations(db, logger)
-	handersCargos := InitCargo(db, logger)
+	repo := NewRepository(db, logger)
+	service := NewService(repo, logger)
+	handlers := NewHandler(service, logger)
 
-	handlersCars.RegisterCarHandlers(s.router)
-	handlersFiles.RegisterFileHandlers(s.router)
-	handlersLocations.RegisterLocationsHandler(s.router)
-	handersCargos.RegisterCargoHandlers(s.router)
+	handlers.RegisterCarHandlers(s.router)
+	handlers.RegisterFileHandlers(s.router)
+	handlers.RegisterLocationsHandler(s.router)
+	handlers.RegisterCargoHandlers(s.router)
 
 	logger.Info("handlers have been initialized")
 
@@ -87,42 +86,51 @@ func initConfig() error {
 	return viper.ReadInConfig()
 }
 
-func InitCars(db *pgxpool.Pool, logger logging.Logger) *cars.Handler {
+type Repository struct {
+	cars.RepositoryCar
+	cargos.RepositoryCargo
+	files.RepositoryFile
+	locations.RepositoryLocation
+}
 
-	repo := cars.NewCarDB(db, logger)
-	service := cars.NewCarService(repo, logger)
-	handers := cars.NewHandler(service, logger)
+func NewRepository(db *pgxpool.Pool, logger logging.Logger) *Repository {
+	return &Repository{
+		RepositoryCar:      cars.NewCarDB(db, logger),
+		RepositoryCargo:    cargos.NewCargoDB(db, logger),
+		RepositoryFile:     files.NewFileDB(db, logger),
+		RepositoryLocation: locations.NewLocationDB(db, logger),
+	}
+}
 
-	return handers
+type Services struct {
+	cars.ServiceCar
+	cargos.ServiceCargo
+	files.ServiceFile
+	locations.ServiceLocation
+}
+
+func NewService(repo *Repository, logger logging.Logger) *Services {
+	return &Services{
+		ServiceCar:      cars.NewCarService(repo.RepositoryCar, logger),
+		ServiceCargo:    cargos.NewCargoService(repo.RepositoryCargo, logger),
+		ServiceFile:     files.NewFileService(repo.RepositoryFile, logger),
+		ServiceLocation: locations.NewLocationService(repo.RepositoryLocation, logger),
+	}
 
 }
 
-func InitFiles(db *pgxpool.Pool, logger logging.Logger) *files.Handler {
-
-	repo := files.NewFileDB(db, logger)
-	service := files.NewFileService(repo, logger)
-	handers := files.NewHandler(service, logger)
-
-	return handers
-
+type Handler struct {
+	cars.HandlerCar
+	cargos.HandlerCargo
+	locations.HandlerLocation
+	files.HandlerFile
 }
 
-func InitLocations(db *pgxpool.Pool, logger logging.Logger) *locations.Handler {
-
-	repo := locations.NewLocationDB(db, logger)
-	service := locations.NewLocationService(repo, logger)
-	handers := locations.NewHandler(service, logger)
-
-	return handers
-
-}
-
-func InitCargo(db *pgxpool.Pool, logger logging.Logger) *cargos.Handler {
-
-	repo := cargos.NewCargoDB(db, logger)
-	service := cargos.NewCargoService(repo, logger)
-	handers := cargos.NewHandler(service, logger)
-
-	return handers
-
+func NewHandler(services *Services, logger logging.Logger) *Handler {
+	return &Handler{
+		*cars.NewHandlerCar(services.ServiceCar, logger),
+		*cargos.NewHandlerCargo(services.ServiceCargo, logger),
+		*locations.NewHandlerLocation(services.ServiceLocation, logger),
+		*files.NewHandlerFile(services.ServiceFile, logger),
+	}
 }

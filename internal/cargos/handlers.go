@@ -16,25 +16,25 @@ const (
 	cargosUrl = "/api/cargos"
 )
 
-type Handler struct {
-	services ServiceCar
+type HandlerCargo struct {
+	services ServiceCargo
 	logger   logging.Logger
 }
 
-func NewHandler(services ServiceCar, logger logging.Logger) *Handler {
-	return &Handler{
+func NewHandlerCargo(services ServiceCargo, logger logging.Logger) *HandlerCargo {
+	return &HandlerCargo{
 		services: services,
 		logger:   logger,
 	}
 }
 
-func (h *Handler) RegisterCargoHandlers(router *mux.Router) {
+func (h *HandlerCargo) RegisterCargoHandlers(router *mux.Router) {
 	router.HandleFunc(cargosUrl, h.CreateCargo).Methods("POST")
 	router.HandleFunc(cargoUrl, h.GetCargoByIDCars).Methods("GET")
 	router.HandleFunc(cargosUrl, h.GetListCargos).Methods("GET")
 }
 
-func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerCargo) CreateCargo(response http.ResponseWriter, request *http.Request) {
 
 	newCargo := &CargoRequest{}
 	defer request.Body.Close()
@@ -61,7 +61,7 @@ func (h *Handler) CreateCargo(response http.ResponseWriter, request *http.Reques
 	response.Write(resp)
 }
 
-func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerCargo) GetCargoByIDCars(response http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)
 	id := vars["id"]
@@ -93,7 +93,7 @@ func (h *Handler) GetCargoByIDCars(response http.ResponseWriter, request *http.R
 	response.Write(resp)
 }
 
-func (h *Handler) GetListCargos(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerCargo) GetListCargos(response http.ResponseWriter, request *http.Request) {
 
 	listCargos, err := h.services.GetListCargos(context.Background())
 
@@ -115,7 +115,7 @@ func (h *Handler) GetListCargos(response http.ResponseWriter, request *http.Requ
 
 }
 
-func (h *Handler) UpdateCargoById(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerCargo) UpdateCargoById(response http.ResponseWriter, request *http.Request) {
 
 	cargoUpdated := &CargoUpdateRequest{}
 

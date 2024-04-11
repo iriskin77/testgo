@@ -15,24 +15,24 @@ const (
 	carsUrl = "/api/cars"
 )
 
-type Handler struct {
+type HandlerCar struct {
 	services ServiceCar
 	logger   logging.Logger
 }
 
-func NewHandler(services ServiceCar, logger logging.Logger) *Handler {
-	return &Handler{
+func NewHandlerCar(services ServiceCar, logger logging.Logger) *HandlerCar {
+	return &HandlerCar{
 		services: services,
 		logger:   logger,
 	}
 }
 
-func (h *Handler) RegisterCarHandlers(router *mux.Router) {
+func (h *HandlerCar) RegisterCarHandlers(router *mux.Router) {
 	router.HandleFunc(carsUrl, h.CreateCar).Methods("POST")
 	router.HandleFunc(carUrl, h.UpdateCarById).Methods("PUT")
 }
 
-func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerCar) CreateCar(response http.ResponseWriter, request *http.Request) {
 
 	newCar := &CarRequest{}
 
@@ -58,7 +58,7 @@ func (h *Handler) CreateCar(response http.ResponseWriter, request *http.Request)
 
 }
 
-func (h *Handler) UpdateCarById(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerCar) UpdateCarById(response http.ResponseWriter, request *http.Request) {
 
 	carUpdatedData := &CarUpdateRequest{}
 

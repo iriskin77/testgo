@@ -18,25 +18,25 @@ const (
 	locationsUrl = "/api/locations"
 )
 
-type Handler struct {
+type HandlerLocation struct {
 	services ServiceLocation
 	logger   logging.Logger
 }
 
-func NewHandler(services ServiceLocation, logger logging.Logger) *Handler {
-	return &Handler{
+func NewHandlerLocation(services ServiceLocation, logger logging.Logger) *HandlerLocation {
+	return &HandlerLocation{
 		services: services,
 		logger:   logger,
 	}
 }
 
-func (h *Handler) RegisterLocationsHandler(router *mux.Router) {
+func (h *HandlerLocation) RegisterLocationsHandler(router *mux.Router) {
 	router.HandleFunc(locationsUrl, h.CreateLocation).Methods("Post")
 	router.HandleFunc(locationUrl, h.GetLocationById).Methods("Get")
 	router.HandleFunc(locationsUrl, middleware.Middleware(h.GetLocationsList)).Methods("Get")
 }
 
-func (h *Handler) CreateLocation(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerLocation) CreateLocation(response http.ResponseWriter, request *http.Request) {
 
 	newLocation := &Location{}
 
@@ -62,7 +62,7 @@ func (h *Handler) CreateLocation(response http.ResponseWriter, request *http.Req
 
 }
 
-func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerLocation) GetLocationById(response http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)
 	id := vars["id"]
@@ -97,7 +97,7 @@ func (h *Handler) GetLocationById(response http.ResponseWriter, request *http.Re
 
 }
 
-func (h *Handler) GetLocationsList(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerLocation) GetLocationsList(response http.ResponseWriter, request *http.Request) {
 
 	sortOptions := request.Context().Value(middleware.OptionsContextKey).(middleware.SortOptions)
 

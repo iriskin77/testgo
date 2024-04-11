@@ -105,12 +105,6 @@ func (f *FileDB) BulkInsertLocations(ctx context.Context, id int) (int, error) {
 
 	}
 
-	rows := [][]interface{}{
-		{"Hadley", "Massachusetts", int32(601), float32(44.44), float32(44.44)},
-	}
-
-	fmt.Println(rows)
-
 	CopyFile, err := f.db.CopyFrom(
 		ctx,
 		pgx.Identifier{"locations"},

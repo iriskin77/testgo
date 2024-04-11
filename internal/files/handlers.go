@@ -19,25 +19,25 @@ const (
 	filesUrl = "/api/files"
 )
 
-type Handler struct {
+type HandlerFile struct {
 	services ServiceFile
 	logger   logging.Logger
 }
 
-func NewHandler(services ServiceFile, logger logging.Logger) *Handler {
-	return &Handler{
+func NewHandlerFile(services ServiceFile, logger logging.Logger) *HandlerFile {
+	return &HandlerFile{
 		services: services,
 		logger:   logger,
 	}
 }
 
-func (h *Handler) RegisterFileHandlers(router *mux.Router) {
+func (h *HandlerFile) RegisterFileHandlers(router *mux.Router) {
 	router.HandleFunc(filesUrl, h.UploadFile).Methods("POST")
 	router.HandleFunc(fileUrl, h.DownloadFile).Methods("GET")
 	router.HandleFunc("/api/upload_file/{id}", h.BulkInsertLocations).Methods("PUT")
 }
 
-func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerFile) UploadFile(response http.ResponseWriter, request *http.Request) {
 	request.ParseMultipartForm(10 << 20)
 
 	// Берем файл из хэндлера
@@ -118,7 +118,7 @@ func (h *Handler) UploadFile(response http.ResponseWriter, request *http.Request
 
 }
 
-func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerFile) DownloadFile(response http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)
 	id := vars["id"]
@@ -156,7 +156,7 @@ func (h *Handler) DownloadFile(response http.ResponseWriter, request *http.Reque
 
 }
 
-func (h *Handler) BulkInsertLocations(response http.ResponseWriter, request *http.Request) {
+func (h *HandlerFile) BulkInsertLocations(response http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)
 	id := vars["id"]

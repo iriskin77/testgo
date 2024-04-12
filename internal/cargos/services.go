@@ -6,7 +6,7 @@ import (
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
-type ServiceCar interface {
+type ServiceCargo interface {
 	CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error)
 	GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error)
 	GetListCargos(ctx context.Context) ([]interface{}, error)

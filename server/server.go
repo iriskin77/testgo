@@ -5,15 +5,19 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	_ "github.com/iriskin77/testgo/docs"
 	"github.com/iriskin77/testgo/internal/cargos"
 	"github.com/iriskin77/testgo/internal/cars"
 	"github.com/iriskin77/testgo/internal/files"
 	"github.com/iriskin77/testgo/internal/locations"
+	"github.com/iriskin77/testgo/internal/users"
 	storage "github.com/iriskin77/testgo/pkg/db"
 	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
+
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 type APIServer struct {
@@ -71,6 +75,11 @@ func (s *APIServer) RunServer() error {
 	handlers.RegisterFileHandlers(s.router)
 	handlers.RegisterLocationsHandler(s.router)
 	handlers.RegisterCargoHandlers(s.router)
+	handlers.RegisterUserHandler(s.router)
+
+	s.router.HandleFunc("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8000/swagger/doc.json"),
+	)).Methods("GET")
 
 	logger.Info("handlers have been initialized")
 
@@ -91,6 +100,7 @@ type Repository struct {
 	cargos.RepositoryCargo
 	files.RepositoryFile
 	locations.RepositoryLocation
+	users.RepositoryUser
 }
 
 func NewRepository(db *pgxpool.Pool, logger logging.Logger) *Repository {
@@ -99,6 +109,7 @@ func NewRepository(db *pgxpool.Pool, logger logging.Logger) *Repository {
 		RepositoryCargo:    cargos.NewCargoDB(db, logger),
 		RepositoryFile:     files.NewFileDB(db, logger),
 		RepositoryLocation: locations.NewLocationDB(db, logger),
+		RepositoryUser:     users.NewUserDB(db, logger),
 	}
 }
 
@@ -107,6 +118,7 @@ type Services struct {
 	cargos.ServiceCargo
 	files.ServiceFile
 	locations.ServiceLocation
+	users.ServiceUser
 }
 
 func NewService(repo *Repository, logger logging.Logger) *Services {
@@ -115,6 +127,7 @@ func NewService(repo *Repository, logger logging.Logger) *Services {
 		ServiceCargo:    cargos.NewCargoService(repo.RepositoryCargo, logger),
 		ServiceFile:     files.NewFileService(repo.RepositoryFile, logger),
 		ServiceLocation: locations.NewLocationService(repo.RepositoryLocation, logger),
+		ServiceUser:     users.NewUserService(repo.RepositoryUser, logger),
 	}
 
 }
@@ -124,6 +137,7 @@ type Handler struct {
 	cargos.HandlerCargo
 	locations.HandlerLocation
 	files.HandlerFile
+	users.HandlerUser
 }
 
 func NewHandler(services *Services, logger logging.Logger) *Handler {
@@ -132,5 +146,6 @@ func NewHandler(services *Services, logger logging.Logger) *Handler {
 		*cargos.NewHandlerCargo(services.ServiceCargo, logger),
 		*locations.NewHandlerLocation(services.ServiceLocation, logger),
 		*files.NewHandlerFile(services.ServiceFile, logger),
+		*users.NewHandlerUser(services.ServiceUser, logger),
 	}
 }

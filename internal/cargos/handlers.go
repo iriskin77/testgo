@@ -34,6 +34,14 @@ func (h *HandlerCargo) RegisterCargoHandlers(router *mux.Router) {
 	router.HandleFunc(cargosUrl, h.GetListCargos).Methods("GET")
 }
 
+// @Summary CreateCargo
+// @Tags cargo
+// @Description create cargo
+// @ID create-cargo
+// @Accept  json
+// @Produce  json
+// @Success 200 {integer} integer 1
+// @Router /api/cargos [post]
 func (h *HandlerCargo) CreateCargo(response http.ResponseWriter, request *http.Request) {
 
 	newCargo := &CargoRequest{}

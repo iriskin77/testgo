@@ -33,4 +33,16 @@ CREATE TABLE file (
     name varchar(255) not null,
     file_path varchar(2048) not null,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
+
+CREATE TABLE users (
+    id            serial       not null unique,
+    name          varchar(255) not null,
+    surname       varchar(255) not null,
+    age           int not null,
+    email         varchar(255) not null,
+    username      varchar(255) not null unique,
+    password_hash varchar(255) not null,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

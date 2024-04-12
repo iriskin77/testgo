@@ -25,12 +25,12 @@ func NewHandlerUser(services ServiceUser, logger logging.Logger) *HandlerUser {
 
 func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Request) {
 
-	userIdToken := request.Context().Value(constants.UserContextKey)
+	userIdToken, ok := request.Context().Value(constants.UserContextKey).(int)
 
-	// if userIdToken == nil {
-	// 	h.logger.Info("Please, sign in %s")
-	// 	return
-	// }
+	if !ok {
+		fmt.Println(ok, "CreateUser, error")
+		return
+	}
 
 	fmt.Println("userIdToken", userIdToken)
 

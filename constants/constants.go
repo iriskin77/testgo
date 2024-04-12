@@ -8,8 +8,8 @@ type sortCtx string
 const (
 
 	// for AuthMiddleware
-	UserContextKey      userCtx = "userId"
 	AuthorizationHeader         = "Authorization"
+	UserContextKey      userCtx = "userId"
 
 	// for SortMiddleware
 	AscSort                   = "ASC"

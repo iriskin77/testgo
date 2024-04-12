@@ -87,11 +87,17 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	var cargoPickUpId int
 	var cargoDeliveryId int
 
+	transaction, err := cr.db.Begin(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
 	queryCargo := `SELECT cargo_name, weight, description, pick_up_location_id, delivery_location_id
 	               FROM cargos 
 				   WHERE id = $1`
 
-	if err := cr.db.QueryRow(ctx, queryCargo, id).Scan(
+	if err := transaction.QueryRow(ctx, queryCargo, id).Scan(
 		&cargoCars.Cargo_name,
 		&cargoCars.Weight,
 		&cargoCars.Description,
@@ -107,7 +113,7 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	                        FROM locations
 							WHERE id = $1`
 
-	if err := cr.db.QueryRow(ctx, queryPickUpLocation, cargoPickUpId).Scan(
+	if err := transaction.QueryRow(ctx, queryPickUpLocation, cargoPickUpId).Scan(
 		&CargoPickUpLocation.Id,
 		&CargoPickUpLocation.City,
 		&CargoPickUpLocation.State,
@@ -123,7 +129,7 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	                          FROM locations
 							  WHERE id = $1`
 
-	if err := cr.db.QueryRow(ctx, queryDeliveryLocation, cargoDeliveryId).Scan(
+	if err := transaction.QueryRow(ctx, queryDeliveryLocation, cargoDeliveryId).Scan(
 		&CargoDeliveryLocation.Id,
 		&CargoDeliveryLocation.City,
 		&CargoDeliveryLocation.State,
@@ -142,7 +148,7 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	                          
 				  FROM cars INNER JOIN locations ON cars.id = locations.id`
 
-	rowsCars, err := cr.db.Query(ctx, queryCars)
+	rowsCars, err := transaction.Query(ctx, queryCars)
 
 	if err != nil {
 		return nil, err
@@ -182,6 +188,8 @@ func (cr *CargoDB) GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse
 	cargoCars.Pickup_loc = CargoPickUpLocation
 	cargoCars.Delivery_loc = CargoDeliveryLocation
 	cargoCars.Cars = cars
+
+	transaction.Commit(ctx)
 
 	return &cargoCars, nil
 }

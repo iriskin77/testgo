@@ -2,23 +2,15 @@ package middleware
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/iriskin77/testgo/constants"
+	"github.com/iriskin77/testgo/internal/users"
 )
 
 // Middleware for sorting
-
-const (
-	AscSort           = "ASC"
-	DescSort          = "DESC"
-	OptionsContextKey = "sort_options"
-	DefaulSortField   = "created_at"
-	DefaultSortOrder  = "ASC"
-)
 
 type SortOptions struct {
 	Field string
@@ -32,13 +24,13 @@ func SortMiddleware(h http.HandlerFunc) http.HandlerFunc {
 		sortOrder := request.URL.Query().Get("sort_order")
 
 		if sortBy == "" {
-			sortBy = DefaulSortField
+			sortBy = constants.DefaulSortField
 		}
 		if sortOrder == "" {
-			sortOrder = DefaultSortOrder
+			sortOrder = constants.DefaultSortOrder
 		} else {
 			upperSortOrder := strings.ToUpper(sortOrder)
-			if upperSortOrder != AscSort && upperSortOrder != DescSort {
+			if upperSortOrder != constants.AscSort && upperSortOrder != constants.DescSort {
 				response.WriteHeader(http.StatusBadRequest)
 				response.Write([]byte("Нельзя так делать"))
 
@@ -50,22 +42,18 @@ func SortMiddleware(h http.HandlerFunc) http.HandlerFunc {
 			Order: sortOrder,
 		}
 
-		ctx := context.WithValue(request.Context(), OptionsContextKey, options)
+		ctx := context.WithValue(request.Context(), constants.OptionsContextKey, options)
 		request = request.WithContext(ctx)
 
 		h(response, request)
 	}
 }
 
-const (
-	authorizationHeader = "Authorization"
-	userCtx             = "userId"
-)
-
+// Middleware to auth user. It gets user id from token
 func AuthMiddleware(h http.HandlerFunc) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 
-		header := request.Header.Get(authorizationHeader)
+		header := request.Header.Get(constants.AuthorizationHeader)
 
 		headerParts := strings.Split(header, " ")
 
@@ -79,75 +67,16 @@ func AuthMiddleware(h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		userId, err := ParseToken(headerParts[1])
+		userId, err := users.GetUserFromToken(headerParts[1])
 		if err != nil {
 			fmt.Println("ParseToken", err.Error())
 			return
 		}
 
-		//locationId, err := strconv.Atoi(id)
-
-		ctx := context.WithValue(request.Context(), userCtx, userId)
+		ctx := context.WithValue(request.Context(), constants.UserContextKey, userId)
 		request = request.WithContext(ctx)
 
 		h(response, request)
 
 	}
 }
-
-const (
-	salt       = "hjqrhjqw124617ajfhajs"
-	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
-)
-
-type tokenClaims struct {
-	jwt.StandardClaims
-	UserId int `json:"user_id"`
-}
-
-func ParseToken(accessToken string) (int, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signing method")
-		}
-
-		return []byte(signingKey), nil
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	claims, ok := token.Claims.(*tokenClaims)
-	if !ok {
-		return 0, errors.New("token claims are not of type *tokenClaims")
-	}
-
-	return claims.UserId, nil
-}
-
-// func (h *Handler) AuthMiddleware(c *gin.Context) {
-// 	header := c.GetHeader(authorizationHeader)
-// 	if header == "" {
-// 		fmt.Println()
-// 		return
-// 	}
-
-// 	headerParts := strings.Split(header, " ")
-// 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-// 		newErrorResponse(c, http.StatusUnauthorized, "invalid auth header")
-// 		return
-// 	}
-
-// 	if len(headerParts[1]) == 0 {
-// 		newErrorResponse(c, http.StatusUnauthorized, "token is empty")
-// 		return
-// 	}
-
-// 	userId, err := h.services.Authorization.ParseToken(headerParts[1])
-// 	if err != nil {
-// 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
-// 		return
-// 	}
-
-// 	c.Set(userCtx, userId)
-// }

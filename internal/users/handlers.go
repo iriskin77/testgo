@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/iriskin77/testgo/internal/errors"
-	"github.com/iriskin77/testgo/internal/middleware"
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
@@ -25,7 +24,7 @@ func NewHandlerUser(services ServiceUser, logger logging.Logger) *HandlerUser {
 
 func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Request) {
 
-	userIdToken := request.Context().Value(middleware.AuthMiddleware)
+	userIdToken := request.Context().Value("userId")
 
 	fmt.Println(userIdToken)
 

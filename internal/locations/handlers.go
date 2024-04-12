@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/iriskin77/testgo/constants"
 	"github.com/iriskin77/testgo/internal/errors"
 	"github.com/iriskin77/testgo/internal/middleware"
 	"github.com/iriskin77/testgo/pkg/logging"
@@ -94,7 +95,7 @@ func (h *HandlerLocation) GetLocationById(response http.ResponseWriter, request 
 
 func (h *HandlerLocation) GetLocationsList(response http.ResponseWriter, request *http.Request) {
 
-	sortOptions := request.Context().Value(middleware.OptionsContextKey).(middleware.SortOptions)
+	sortOptions := request.Context().Value(constants.OptionsContextKey).(middleware.SortOptions)
 
 	fmt.Println("sortOptions", sortOptions)
 

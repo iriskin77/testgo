@@ -34,22 +34,21 @@ func (h *HandlerCargo) RegisterCargoHandlers(router *mux.Router) {
 	router.HandleFunc(cargosUrl, h.GetListCargos).Methods("GET")
 }
 
-// @Summary CreateCargo
-// @Tags cargo
-// @Description create cargo
-// @ID create-cargo
-// @Accept  json
-// @Produce  json
-// @Success 200 {integer} integer 1
-// @Router /api/cargos [post]
 func (h *HandlerCargo) CreateCargo(response http.ResponseWriter, request *http.Request) {
 
-	newCargo := &CargoRequest{}
+	newCargo := &CargoCreateRequest{}
 	defer request.Body.Close()
 
 	if err := json.NewDecoder(request.Body).Decode(newCargo); err != nil {
 		h.logger.Errorf("Failed to decode request data(CreateCargo) %s", err.Error())
 		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := newCargo.CreateCargoValidate(); err != nil {
+		h.logger.Errorf("Failed to validate data to create a new cargo %s", err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	cargoId, err := h.services.CreateCargo(context.Background(), newCargo)
@@ -128,6 +127,12 @@ func (h *HandlerCargo) UpdateCargoById(response http.ResponseWriter, request *ht
 	cargoUpdated := &CargoUpdateRequest{}
 
 	json.NewDecoder(request.Body).Decode(cargoUpdated)
+
+	if err := cargoUpdated.UpdateCargoValidate(); err != nil {
+		h.logger.Errorf("Failed validate data to update cargo %s", err.Error())
+		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	carUpdatedId, err := h.services.UpdateCargoById(context.Background(), cargoUpdated)
 

@@ -34,7 +34,7 @@ func (h *HandlerCar) RegisterCarHandlers(router *mux.Router) {
 
 func (h *HandlerCar) CreateCar(response http.ResponseWriter, request *http.Request) {
 
-	newCar := &CarRequest{}
+	newCar := &CarCreateRequest{}
 
 	json.NewDecoder(request.Body).Decode(newCar)
 

@@ -1,6 +1,9 @@
 package cargos
 
-import "github.com/iriskin77/testgo/internal/locations"
+import (
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/iriskin77/testgo/internal/locations"
+)
 
 type Cargo struct {
 	Id                int    `json:"id"`
@@ -11,12 +14,22 @@ type Cargo struct {
 	Delivery_location int    `json:"delivery_location"`
 }
 
-type CargoRequest struct {
+type CargoCreateRequest struct {
 	Cargo_name   string `json:"cargo_name"`
-	Zip_pickup   int    `json:"zip_pickup"`
-	Zip_delivery int    `json:"zip_delivery"`
 	Weight       int    `json:"weight"`
 	Description  string `json:"description"`
+	Zip_pickup   int    `json:"zip_pickup"`
+	Zip_delivery int    `json:"zip_delivery"`
+}
+
+func (c *CargoCreateRequest) CreateCargoValidate() error {
+	return validation.ValidateStruct(
+		c,
+		validation.Field(&c.Cargo_name, validation.Required, validation.Length(5, 50)),
+		validation.Field(&c.Weight, validation.Required),
+		validation.Field(&c.Description, validation.Required, validation.Length(5, 50)),
+		validation.Field(&c.Zip_pickup, validation.Required),
+		validation.Field(&c.Zip_delivery, validation.Required))
 }
 
 type CargoCarsResponse struct {
@@ -41,4 +54,13 @@ type CargoUpdateRequest struct {
 	Id          int    `json:"id"`
 	Weight      int    `json:"weight"`
 	Description string `json:"description"`
+}
+
+func (c *CargoUpdateRequest) UpdateCargoValidate() error {
+	return validation.ValidateStruct(
+		c,
+		validation.Field(&c.Id, validation.Required),
+		validation.Field(&c.Weight, validation.Required),
+		validation.Field(&c.Description, validation.Required),
+	)
 }

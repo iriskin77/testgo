@@ -7,7 +7,7 @@ import (
 )
 
 type ServiceCargo interface {
-	CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error)
+	CreateCargo(ctx context.Context, cargo *CargoCreateRequest) (int, error)
 	GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error)
 	GetListCargos(ctx context.Context) ([]interface{}, error)
 	UpdateCargoById(ctx context.Context, cargoUpdate *CargoUpdateRequest) (int, error)
@@ -27,7 +27,7 @@ func NewCargoService(repo RepositoryCargo, logger logging.Logger) *serviceCargo 
 	}
 }
 
-func (cr *serviceCargo) CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error) {
+func (cr *serviceCargo) CreateCargo(ctx context.Context, cargo *CargoCreateRequest) (int, error) {
 
 	newCarId, err := cr.repo.CreateCargo(ctx, cargo)
 

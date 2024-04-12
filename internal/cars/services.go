@@ -7,7 +7,7 @@ import (
 )
 
 type ServiceCar interface {
-	CreateCar(ctx context.Context, car *CarRequest) (int, error)
+	CreateCar(ctx context.Context, car *CarCreateRequest) (int, error)
 	UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) (int, error)
 }
 
@@ -24,7 +24,7 @@ func NewCarService(repo RepositoryCar, logger logging.Logger) *serviceCar {
 		logger: logger}
 }
 
-func (scar *serviceCar) CreateCar(ctx context.Context, car *CarRequest) (int, error) {
+func (scar *serviceCar) CreateCar(ctx context.Context, car *CarCreateRequest) (int, error) {
 	carId, err := scar.repo.CreateCar(ctx, car)
 
 	if err != nil {

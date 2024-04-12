@@ -42,6 +42,12 @@ func (h *HandlerLocation) CreateLocation(response http.ResponseWriter, request *
 
 	json.NewDecoder(request.Body).Decode(newLocation)
 
+	if err := newLocation.CreateLocationValidate(); err != nil {
+		h.logger.Errorf("Failed to validate data to create location %s", err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	location, err := h.services.CreateLocation(context.Background(), newLocation)
 
 	if err != nil {

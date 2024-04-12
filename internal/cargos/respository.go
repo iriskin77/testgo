@@ -16,7 +16,7 @@ const (
 )
 
 type RepositoryCargo interface {
-	CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error)
+	CreateCargo(ctx context.Context, cargo *CargoCreateRequest) (int, error)
 	GetCargoCars(ctx context.Context, id int) (*CargoCarsResponse, error)
 	GetListCargos(ctx context.Context) ([]interface{}, error)
 	UpdateCargoById(ctx context.Context, cargoUpdate *CargoUpdateRequest) (int, error)
@@ -34,7 +34,7 @@ func NewCargoDB(db *pgxpool.Pool, logger logging.Logger) *CargoDB {
 	}
 }
 
-func (cr *CargoDB) CreateCargo(ctx context.Context, cargo *CargoRequest) (int, error) {
+func (cr *CargoDB) CreateCargo(ctx context.Context, cargo *CargoCreateRequest) (int, error) {
 
 	var pickUpId int
 

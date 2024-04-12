@@ -13,7 +13,7 @@ const (
 )
 
 type RepositoryCar interface {
-	CreateCar(ctx context.Context, car *CarRequest) (int, error)
+	CreateCar(ctx context.Context, car *CarCreateRequest) (int, error)
 	UpdateCarById(ctx context.Context, carUpdate *CarUpdateRequest) (int, error)
 }
 
@@ -29,7 +29,7 @@ func NewCarDB(db *pgxpool.Pool, logger logging.Logger) *CarDB {
 	}
 }
 
-func (c *CarDB) CreateCar(ctx context.Context, car *CarRequest) (int, error) {
+func (c *CarDB) CreateCar(ctx context.Context, car *CarCreateRequest) (int, error) {
 
 	var locId int
 

@@ -33,7 +33,7 @@ func NewHandlerLocation(services ServiceLocation, logger logging.Logger) *Handle
 func (h *HandlerLocation) RegisterLocationsHandler(router *mux.Router) {
 	router.HandleFunc(locationsUrl, h.CreateLocation).Methods("Post")
 	router.HandleFunc(locationUrl, h.GetLocationById).Methods("Get")
-	router.HandleFunc(locationsUrl, middleware.Middleware(h.GetLocationsList)).Methods("Get")
+	router.HandleFunc(locationsUrl, middleware.SortMiddleware(h.GetLocationsList)).Methods("Get")
 }
 
 func (h *HandlerLocation) CreateLocation(response http.ResponseWriter, request *http.Request) {

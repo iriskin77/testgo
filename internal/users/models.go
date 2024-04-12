@@ -31,3 +31,15 @@ func (u *User) CreateUserValidate() error {
 
 // validation.Match(regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`))
 // validation.Match(regexp.MustCompile("^[0-9A-Za-z]+$")
+
+type UserByUsernamePassword struct {
+	Username      string `json:"username"`
+	Password_hash string `json:"password"`
+}
+
+func (u *UserByUsernamePassword) CreateUserSignInValidate() error {
+	return validation.ValidateStruct(
+		u,
+		validation.Field(&u.Username, validation.Required, validation.Length(5, 50)),
+		validation.Field(&u.Password_hash, validation.Required, validation.Length(5, 50)))
+}

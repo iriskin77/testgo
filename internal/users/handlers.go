@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/internal/errors"
+	"github.com/iriskin77/testgo/internal/middleware"
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
@@ -29,11 +30,16 @@ func NewHandlerUser(services ServiceUser, logger logging.Logger) *HandlerUser {
 }
 
 func (h *HandlerUser) RegisterUserHandler(router *mux.Router) {
-	router.HandleFunc(locationsUrl, h.CreateUser).Methods("Post")
+	router.HandleFunc(locationsUrl, middleware.AuthMiddleware(h.CreateUser)).Methods("Post")
+	router.HandleFunc(locationsUrl, h.LoginUser).Methods("Get")
 
 }
 
 func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Request) {
+
+	userIdToken := request.Context().Value(middleware.AuthMiddleware)
+
+	fmt.Println(userIdToken)
 
 	newUser := &User{}
 
@@ -58,6 +64,41 @@ func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Req
 	}
 
 	resp, err := json.Marshal(newUserId)
+
+	if err != nil {
+		h.logger.Errorf("Failed to Marshal data from db in handlers %s", err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	response.Write(resp)
+
+}
+
+func (h *HandlerUser) LoginUser(response http.ResponseWriter, request *http.Request) {
+
+	userInput := &UserByUsernamePassword{}
+
+	json.NewDecoder(request.Body).Decode(userInput)
+
+	fmt.Println(userInput)
+
+	if err := userInput.CreateUserSignInValidate(); err != nil {
+		h.logger.Errorf("Failed to validate users input %s", err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	token, err := h.services.GenerateToken(context.Background(), userInput.Username, userInput.Password_hash)
+	if err != nil {
+		h.logger.Errorf("Failed to generate token %s", err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println(token)
+
+	resp, err := json.Marshal(token)
 
 	if err != nil {
 		h.logger.Errorf("Failed to Marshal data from db in handlers %s", err.Error())

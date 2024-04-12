@@ -14,6 +14,7 @@ const (
 
 type RepositoryUser interface {
 	CreateUser(ctx context.Context, newUser *User) (int, error)
+	GetUserByUsernamePassword(ctx context.Context, username, password string) (int, error)
 }
 
 type UserDB struct {
@@ -43,4 +44,20 @@ func (ru *UserDB) CreateUser(ctx context.Context, newUser *User) (int, error) {
 	}
 
 	return newUserId, nil
+}
+
+func (ru *UserDB) GetUserByUsernamePassword(ctx context.Context, username, password string) (int, error) {
+
+	var userId int
+
+	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", usersTable)
+
+	if err := ru.db.QueryRow(ctx, query,
+		username,
+		password,
+	).Scan(&userId); err != nil {
+		return 0, err
+	}
+
+	return userId, nil
 }

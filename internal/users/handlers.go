@@ -6,15 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/internal/errors"
 	"github.com/iriskin77/testgo/internal/middleware"
 	"github.com/iriskin77/testgo/pkg/logging"
-)
-
-const (
-	locationUrl  = "/api/user/{id}"
-	locationsUrl = "/api/users"
 )
 
 type HandlerUser struct {
@@ -27,12 +21,6 @@ func NewHandlerUser(services ServiceUser, logger logging.Logger) *HandlerUser {
 		services: services,
 		logger:   logger,
 	}
-}
-
-func (h *HandlerUser) RegisterUserHandler(router *mux.Router) {
-	router.HandleFunc(locationsUrl, middleware.AuthMiddleware(h.CreateUser)).Methods("Post")
-	router.HandleFunc(locationsUrl, h.LoginUser).Methods("Get")
-
 }
 
 func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Request) {

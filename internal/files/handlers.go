@@ -14,11 +14,6 @@ import (
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
-const (
-	fileUrl  = "/api/file/{id}"
-	filesUrl = "/api/files"
-)
-
 type HandlerFile struct {
 	services ServiceFile
 	logger   logging.Logger
@@ -29,12 +24,6 @@ func NewHandlerFile(services ServiceFile, logger logging.Logger) *HandlerFile {
 		services: services,
 		logger:   logger,
 	}
-}
-
-func (h *HandlerFile) RegisterFileHandlers(router *mux.Router) {
-	router.HandleFunc(filesUrl, h.UploadFile).Methods("POST")
-	router.HandleFunc(fileUrl, h.DownloadFile).Methods("GET")
-	router.HandleFunc("/api/upload_file/{id}", h.BulkInsertLocations).Methods("PUT")
 }
 
 func (h *HandlerFile) UploadFile(response http.ResponseWriter, request *http.Request) {

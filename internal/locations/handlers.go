@@ -13,11 +13,6 @@ import (
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
-const (
-	locationUrl  = "/api/location/{id}"
-	locationsUrl = "/api/locations"
-)
-
 type HandlerLocation struct {
 	services ServiceLocation
 	logger   logging.Logger
@@ -28,12 +23,6 @@ func NewHandlerLocation(services ServiceLocation, logger logging.Logger) *Handle
 		services: services,
 		logger:   logger,
 	}
-}
-
-func (h *HandlerLocation) RegisterLocationsHandler(router *mux.Router) {
-	router.HandleFunc(locationsUrl, h.CreateLocation).Methods("Post")
-	router.HandleFunc(locationUrl, h.GetLocationById).Methods("Get")
-	router.HandleFunc(locationsUrl, middleware.SortMiddleware(h.GetLocationsList)).Methods("Get")
 }
 
 func (h *HandlerLocation) CreateLocation(response http.ResponseWriter, request *http.Request) {

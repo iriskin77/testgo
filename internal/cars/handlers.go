@@ -5,14 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/internal/errors"
 	"github.com/iriskin77/testgo/pkg/logging"
-)
-
-const (
-	carUrl  = "/api/car/{id}"
-	carsUrl = "/api/cars"
 )
 
 type HandlerCar struct {
@@ -25,11 +19,6 @@ func NewHandlerCar(services ServiceCar, logger logging.Logger) *HandlerCar {
 		services: services,
 		logger:   logger,
 	}
-}
-
-func (h *HandlerCar) RegisterCarHandlers(router *mux.Router) {
-	router.HandleFunc(carsUrl, h.CreateCar).Methods("POST")
-	router.HandleFunc(carUrl, h.UpdateCarById).Methods("PUT")
 }
 
 func (h *HandlerCar) CreateCar(response http.ResponseWriter, request *http.Request) {

@@ -11,11 +11,6 @@ import (
 	"github.com/iriskin77/testgo/pkg/logging"
 )
 
-const (
-	cargoUrl  = "/api/cargo/{id}"
-	cargosUrl = "/api/cargos"
-)
-
 type HandlerCargo struct {
 	services ServiceCargo
 	logger   logging.Logger
@@ -26,12 +21,6 @@ func NewHandlerCargo(services ServiceCargo, logger logging.Logger) *HandlerCargo
 		services: services,
 		logger:   logger,
 	}
-}
-
-func (h *HandlerCargo) RegisterCargoHandlers(router *mux.Router) {
-	router.HandleFunc(cargosUrl, h.CreateCargo).Methods("POST")
-	router.HandleFunc(cargoUrl, h.GetCargoByIDCars).Methods("GET")
-	router.HandleFunc(cargosUrl, h.GetListCargos).Methods("GET")
 }
 
 func (h *HandlerCargo) CreateCargo(response http.ResponseWriter, request *http.Request) {

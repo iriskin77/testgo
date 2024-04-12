@@ -10,6 +10,7 @@ import (
 	"github.com/iriskin77/testgo/internal/cars"
 	"github.com/iriskin77/testgo/internal/files"
 	"github.com/iriskin77/testgo/internal/locations"
+	"github.com/iriskin77/testgo/internal/middleware"
 	"github.com/iriskin77/testgo/internal/users"
 	storage "github.com/iriskin77/testgo/pkg/db"
 	"github.com/iriskin77/testgo/pkg/logging"
@@ -69,13 +70,29 @@ func (s *APIServer) RunServer() error {
 
 	repo := NewRepository(db, logger)
 	service := NewService(repo, logger)
-	handlers := NewHandler(service, logger)
+	h := NewHandler(service, logger)
 
-	handlers.RegisterCarHandlers(s.router)
-	handlers.RegisterFileHandlers(s.router)
-	handlers.RegisterLocationsHandler(s.router)
-	handlers.RegisterCargoHandlers(s.router)
-	handlers.RegisterUserHandler(s.router)
+	// Car handlers
+	s.router.HandleFunc("/api/cars", h.HandlerCar.CreateCar).Methods("POST")
+	s.router.HandleFunc("/api/car/{id}", h.UpdateCarById).Methods("PUT")
+
+	// File handlers
+	s.router.HandleFunc("/api/files", h.UploadFile).Methods("POST")
+	s.router.HandleFunc("/api/file/{id}", h.DownloadFile).Methods("GET")
+	s.router.HandleFunc("/api/upload_file/{id}", h.BulkInsertLocations).Methods("PUT")
+
+	// Location handlers
+	s.router.HandleFunc("/api/createlocation", h.CreateLocation).Methods("Post")
+	s.router.HandleFunc("/api/get_location/{id}", h.GetLocationById).Methods("Get")
+	s.router.HandleFunc("/api/get_locations", middleware.SortMiddleware(h.GetLocationsList)).Methods("Get")
+
+	s.router.HandleFunc("/api/createcargo", h.CreateCargo).Methods("POST")
+	s.router.HandleFunc("/api/get_cargo/{id}", h.GetCargoByIDCars).Methods("GET")
+	s.router.HandleFunc("/api/get_cargos", h.GetListCargos).Methods("GET")
+
+	// User handlers
+	s.router.HandleFunc("/api/create_user", middleware.AuthMiddleware(h.CreateUser)).Methods("Post")
+	s.router.HandleFunc("/api/login_user", h.LoginUser).Methods("Get")
 
 	s.router.HandleFunc("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8000/swagger/doc.json"),

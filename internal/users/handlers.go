@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/iriskin77/testgo/constants"
 	"github.com/iriskin77/testgo/internal/errors"
 	"github.com/iriskin77/testgo/pkg/logging"
 )
@@ -24,15 +25,20 @@ func NewHandlerUser(services ServiceUser, logger logging.Logger) *HandlerUser {
 
 func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Request) {
 
-	userIdToken := request.Context().Value("userId")
+	userIdToken := request.Context().Value(constants.UserContextKey)
 
-	fmt.Println(userIdToken)
+	// if userIdToken == nil {
+	// 	h.logger.Info("Please, sign in %s")
+	// 	return
+	// }
+
+	fmt.Println("userIdToken", userIdToken)
 
 	newUser := &User{}
 
 	json.NewDecoder(request.Body).Decode(newUser)
 
-	fmt.Println("Before validation", newUser)
+	//fmt.Println("Before validation", newUser)
 
 	if err := newUser.CreateUserValidate(); err != nil {
 		h.logger.Errorf("Failed to validate: invalid data to create a new user %s", err.Error())
@@ -40,7 +46,7 @@ func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Req
 		return
 	}
 
-	fmt.Println("After validation", newUser)
+	//.Println("After validation", newUser)
 
 	newUserId, err := h.services.CreateUser(context.Background(), newUser)
 

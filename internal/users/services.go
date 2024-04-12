@@ -86,6 +86,5 @@ func GetUserFromToken(accessToken string) (int, error) {
 	if !ok {
 		return 0, errors.New("token claims are not of type *tokenClaims")
 	}
-	fmt.Println("ParseToken", token)
 	return claims.UserId, nil
 }

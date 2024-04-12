@@ -82,17 +82,17 @@ func (s *APIServer) RunServer() error {
 	s.router.HandleFunc("/api/upload_file/{id}", h.BulkInsertLocations).Methods("PUT")
 
 	// Location handlers
-	s.router.HandleFunc("/api/createlocation", h.CreateLocation).Methods("Post")
-	s.router.HandleFunc("/api/get_location/{id}", h.GetLocationById).Methods("Get")
-	s.router.HandleFunc("/api/get_locations", middleware.SortMiddleware(h.GetLocationsList)).Methods("Get")
+	s.router.HandleFunc("/api/createlocation", h.CreateLocation).Methods("POST")
+	s.router.HandleFunc("/api/get_location/{id}", h.GetLocationById).Methods("GET")
+	s.router.HandleFunc("/api/get_locations", middleware.SortMiddleware(h.GetLocationsList)).Methods("GET")
 
 	s.router.HandleFunc("/api/createcargo", h.CreateCargo).Methods("POST")
 	s.router.HandleFunc("/api/get_cargo/{id}", h.GetCargoByIDCars).Methods("GET")
 	s.router.HandleFunc("/api/get_cargos", h.GetListCargos).Methods("GET")
 
 	// User handlers
-	s.router.HandleFunc("/api/create_user", middleware.AuthMiddleware(h.CreateUser)).Methods("Post")
-	s.router.HandleFunc("/api/login_user", h.LoginUser).Methods("Get")
+	s.router.HandleFunc("/api/create_user", middleware.AuthMiddleware(h.CreateUser)).Methods("POST")
+	s.router.HandleFunc("/api/login_user", h.LoginUser).Methods("GET")
 
 	s.router.HandleFunc("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8000/swagger/doc.json"),

@@ -2,11 +2,10 @@ package server
 
 import (
 	"context"
-	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/iriskin77/testgo/configs"
 	_ "github.com/iriskin77/testgo/docs"
 	"github.com/iriskin77/testgo/internal/cargos"
 	"github.com/iriskin77/testgo/internal/cars"
@@ -23,35 +22,11 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
-type APIServer struct {
-	serverConfig *ConfigServer
-	router       *mux.Router
-}
-
-func NewApiServer(serverConfig *ConfigServer) *APIServer {
-	return &APIServer{
-		serverConfig: serverConfig,
-		router:       mux.NewRouter(),
-	}
-
-}
-
-func (s *APIServer) RunServer() error {
-
-	// Инициализируем логгер
-	logging.InitLogger()
-
-	logger := logging.GetLogger()
-
-	logger.Info("logger has been initialized")
-
-	// if err := initConfig(); err != nil {
-	// 	logger.Fatalf("error initialization config %s", err.Error())
-	// }
+func RunServer(logger logging.Logger, postgres configs.ConfigPostgres, BindAddr string) (*http.Server, error) {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		logger.Fatal("Error loading .env file")
 	}
 
 	logger.Info("config has been initialized")
@@ -60,17 +35,10 @@ func (s *APIServer) RunServer() error {
 
 	ctx := context.Background()
 
-	db, err := storage.NewPostgresDB(ctx, storage.ConfigDB{
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     os.Getenv("POSTGRES_PORT"),
-		Username: os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		DBName:   os.Getenv("POSTGRES_DB"),
-		SSLMode:  os.Getenv("SSLMODE"),
-	})
+	db, err := storage.NewPostgresDB(ctx, postgres)
 
 	if err != nil {
-		logger.Fatalf("error initialization config %s", err.Error())
+		logger.Fatal("Error to connect to db")
 	}
 
 	logger.Info("db has been initialized")
@@ -79,29 +47,31 @@ func (s *APIServer) RunServer() error {
 	service := NewService(repo, logger)
 	h := NewHandler(service, logger)
 
+	router := mux.NewRouter()
+
 	// Car handlers
-	s.router.HandleFunc("/api/cars", h.HandlerCar.CreateCar).Methods("POST")
-	s.router.HandleFunc("/api/car/{id}", h.UpdateCarById).Methods("PUT")
+	router.HandleFunc("/api/cars", h.HandlerCar.CreateCar).Methods("POST")
+	router.HandleFunc("/api/car/{id}", h.UpdateCarById).Methods("PUT")
 
 	// File handlers
-	s.router.HandleFunc("/api/files", h.UploadFile).Methods("POST")
-	s.router.HandleFunc("/api/file/{id}", h.DownloadFile).Methods("GET")
-	s.router.HandleFunc("/api/upload_file/{id}", h.BulkInsertLocations).Methods("PUT")
+	router.HandleFunc("/api/files", h.UploadFile).Methods("POST")
+	router.HandleFunc("/api/file/{id}", h.DownloadFile).Methods("GET")
+	router.HandleFunc("/api/upload_file/{id}", h.BulkInsertLocations).Methods("PUT")
 
 	// Location handlers
-	s.router.HandleFunc("/api/createlocation", h.CreateLocation).Methods("POST")
-	s.router.HandleFunc("/api/get_location/{id}", h.GetLocationById).Methods("GET")
-	s.router.HandleFunc("/api/get_locations", middleware.SortMiddleware(h.GetLocationsList)).Methods("GET")
+	router.HandleFunc("/api/createlocation", h.CreateLocation).Methods("POST")
+	router.HandleFunc("/api/get_location/{id}", h.GetLocationById).Methods("GET")
+	router.HandleFunc("/api/get_locations", middleware.SortMiddleware(h.GetLocationsList)).Methods("GET")
 
-	s.router.HandleFunc("/api/createcargo", h.CreateCargo).Methods("POST")
-	s.router.HandleFunc("/api/get_cargo/{id}", h.GetCargoByIDCars).Methods("GET")
-	s.router.HandleFunc("/api/get_cargos", h.GetListCargos).Methods("GET")
+	router.HandleFunc("/api/createcargo", h.CreateCargo).Methods("POST")
+	router.HandleFunc("/api/get_cargo/{id}", h.GetCargoByIDCars).Methods("GET")
+	router.HandleFunc("/api/get_cargos", h.GetListCargos).Methods("GET")
 
 	// User handlers
-	s.router.HandleFunc("/api/create_user", middleware.AuthMiddleware(h.CreateUser)).Methods("POST")
-	s.router.HandleFunc("/api/login_user", h.LoginUser).Methods("GET")
+	router.HandleFunc("/api/create_user", middleware.AuthMiddleware(h.CreateUser)).Methods("POST")
+	router.HandleFunc("/api/login_user", h.LoginUser).Methods("GET")
 
-	s.router.HandleFunc("/swagger/", httpSwagger.Handler(
+	router.HandleFunc("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8000/swagger/doc.json"),
 	)).Methods("GET")
 
@@ -109,17 +79,11 @@ func (s *APIServer) RunServer() error {
 
 	logger.Info("starting API Server")
 
-	return http.ListenAndServe(s.serverConfig.BindAddr, s.router)
-
+	return &http.Server{
+		Addr:    BindAddr,
+		Handler: router,
+	}, nil
 }
-
-// func initConfig() error {
-// 	pathConfig, _ := filepath.Abs("configs")
-// 	fmt.Println(pathConfig)
-// 	viper.AddConfigPath(pathConfig)
-// 	viper.SetConfigName("config")
-// 	return viper.ReadInConfig()
-// }
 
 type Repository struct {
 	cars.RepositoryCar

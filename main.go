@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
+	"github.com/iriskin77/testgo/configs"
+	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/iriskin77/testgo/server"
 	"github.com/joho/godotenv"
 )
@@ -30,15 +34,26 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	s3Bucket := os.Getenv("POSTGRES_USER")
-	secretKey := os.Getenv("POSTGRES_DB")
+	fmt.Println(os.Getenv("BINDADDR"))
 
-	fmt.Println(s3Bucket)
-	fmt.Println(secretKey)
+	// Инициализируем логгер
+	logging.InitLogger()
 
-	config := server.NewConfigServer()
+	logger := logging.GetLogger()
 
-	s := server.NewApiServer(config)
+	logger.Info("logger has been initialized")
 
-	s.RunServer()
+	// Инициализируем конфиг
+	config := configs.NewConfig()
+
+	srv, err := server.RunServer(logger, config.Postgres, config.Bindaddr)
+
+	if err != nil {
+		logger.Fatalf("Failed to start server", err.Error())
+	}
+
+	if err = srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		logger.Errorf("HTTP server ListenAndServe", err.Error())
+	}
+
 }

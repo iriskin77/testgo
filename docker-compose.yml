@@ -2,17 +2,17 @@ version: "3.9"
 
 services:
 
-  app:
-    build: .
-    command: [./app]
-    ports:
-      - 8000:8000
-    networks:
-      new:
-        aliases:
-          - database
-    depends_on:
-      - db
+  # app:
+  #   build: .
+  #   command: [./app]
+  #   ports:
+  #     - 8000:8000
+  #   networks:
+  #     new:
+  #       aliases:
+  #         - database
+  #   depends_on:
+  #     - db
 
   db:
     image: postgres
@@ -35,18 +35,18 @@ services:
       retries: 5
 
 
-  migrate:
-        image: migrate/migrate
-        networks:
-            - new
+  # migrate:
+  #       image: migrate/migrate
+  #       networks:
+  #           - new
 
-        volumes:
-            - ./migrations:/app/migrations
-        command: ["-path", "/app/migrations", "-database",  "postgres://pguser:pgpassword@app_db:5432/postgres?sslmode=disable", "up"]
-        links: 
-            - db
-        depends_on:
-            - db
+  #       volumes:
+  #           - ./migrations:/app/migrations
+  #       command: ["-path", "/app/migrations", "-database",  "postgres://pguser:pgpassword@app_db:5432/postgres?sslmode=disable", "up"]
+  #       links: 
+  #           - db
+  #       depends_on:
+  #           - db
 
 networks:
       new:

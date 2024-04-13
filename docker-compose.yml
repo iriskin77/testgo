@@ -2,16 +2,54 @@ version: "3.9"
 
 services:
 
+  app:
+    build: .
+    command: [./app]
+    ports:
+      - 8000:8000
+    networks:
+      new:
+        aliases:
+          - database
+    depends_on:
+      - db
+
   db:
     image: postgres
-    container_name: "file-db"
+    networks:
+            new:
+                aliases:
+                    - database
+    container_name: "app_db"
     volumes:
       - df:/var/lib/postgresql/data/
     restart: always
     env_file:
       - .env
     ports:
-    - "4445:5432"
+    - "5432:5432"
+    healthcheck:
+      test: pg_isready -U pguser -d postgres
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
+
+  migrate:
+        image: migrate/migrate
+        networks:
+            - new
+
+        volumes:
+            - ./migrations:/app/migrations
+        command: ["-path", "/app/migrations", "-database",  "postgres://pguser:pgpassword@app_db:5432/postgres?sslmode=disable", "up"]
+        links: 
+            - db
+        depends_on:
+            - db
+
+networks:
+      new:
 volumes:
   df:
+

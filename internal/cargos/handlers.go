@@ -23,6 +23,15 @@ func NewHandlerCargo(services ServiceCargo, logger logging.Logger) *HandlerCargo
 	}
 }
 
+// CreateCargo godoc
+// @Summary Create a new cargo
+// @Description Create a new car with the input paylod
+// @Tags cargo
+// @Accept  json
+// @Produce  json
+// @Param input body CargoCreateRequest true "Create cargo"
+// @Success 200 {integer} integer 1
+// @Router /api/create_cargo [post]
 func (h *HandlerCargo) CreateCargo(response http.ResponseWriter, request *http.Request) {
 
 	newCargo := &CargoCreateRequest{}
@@ -57,6 +66,15 @@ func (h *HandlerCargo) CreateCargo(response http.ResponseWriter, request *http.R
 	response.Write(resp)
 }
 
+// GetCargosCars
+// @Summary Get list cargos with the closest cars
+// @Description get all cargos
+// @Tags cargo
+// @Accept  json
+// @Produce  json
+// @Param id path int true "cargo id"
+// @Success 200 {object} CargoCarsResponse
+// @Router /api/get_cargo/{id} [get]
 func (h *HandlerCargo) GetCargoByIDCars(response http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)
@@ -89,6 +107,14 @@ func (h *HandlerCargo) GetCargoByIDCars(response http.ResponseWriter, request *h
 	response.Write(resp)
 }
 
+// GetLocationsList
+// @Summary Get list
+// @Description get all cargos
+// @Tags cargo
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} object
+// @Router /api/get_cargos [get]
 func (h *HandlerCargo) GetListCargos(response http.ResponseWriter, request *http.Request) {
 
 	listCargos, err := h.services.GetListCargos(context.Background())
@@ -111,6 +137,15 @@ func (h *HandlerCargo) GetListCargos(response http.ResponseWriter, request *http
 
 }
 
+// UpdateCargo godoc
+// @Summary Update a cargo
+// @Description Update a cargo by id
+// @Tags car
+// @Accept  json
+// @Produce  json
+// @Param input body CargoUpdateRequest true "Update car"
+// @Success 200 {integer} integer 1
+// @Router /api/update_cargo/{id} [put]
 func (h *HandlerCargo) UpdateCargoById(response http.ResponseWriter, request *http.Request) {
 
 	cargoUpdated := &CargoUpdateRequest{}

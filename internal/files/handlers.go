@@ -107,6 +107,13 @@ func (h *HandlerFile) UploadFile(response http.ResponseWriter, request *http.Req
 
 }
 
+// Download file by its id
+// @Summary file id
+// @Description Get a file by id
+// @Tags file
+// @Produce  json
+// @Param id path int true "Downloading a file"
+// @Router /api/download_file/{id} [get]
 func (h *HandlerFile) DownloadFile(response http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)
@@ -145,6 +152,13 @@ func (h *HandlerFile) DownloadFile(response http.ResponseWriter, request *http.R
 
 }
 
+// Upload list locations
+// @Summary upload list locations
+// @Description Uploading a list of locations from the file with zips
+// @Tags file
+// @Param id path int true "Uploding locations"
+// @Produce  json
+// @Router /api/upload_locs_from_file/{id} [post]
 func (h *HandlerFile) BulkInsertLocations(response http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)

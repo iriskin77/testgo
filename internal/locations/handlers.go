@@ -26,6 +26,15 @@ func NewHandlerLocation(services ServiceLocation, logger logging.Logger) *Handle
 	}
 }
 
+// CreateLocation godoc
+// @Summary Create a new location
+// @Description Create a new location with the input paylod
+// @Tags location
+// @Accept  json
+// @Produce  json
+// @Param input body Location true "Create location"
+// @Success 200 {integer} integer 1
+// @Router /api/create_location [post]
 func (h *HandlerLocation) CreateLocation(response http.ResponseWriter, request *http.Request) {
 
 	newLocation := &Location{}
@@ -58,6 +67,15 @@ func (h *HandlerLocation) CreateLocation(response http.ResponseWriter, request *
 
 }
 
+// Get location by Id
+// @Summary location id
+// @Description Create a new location with the input paylod
+// @Tags location
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Get location"
+// @Success 200 {object} Location
+// @Router /api/get_location/{id} [get]
 func (h *HandlerLocation) GetLocationById(response http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)
@@ -93,6 +111,14 @@ func (h *HandlerLocation) GetLocationById(response http.ResponseWriter, request 
 
 }
 
+// GetLocationsList
+// @Summary Get list
+// @Description get all locations
+// @Tags location
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} []Location
+// @Router /api/get_locations [get]
 func (h *HandlerLocation) GetLocationsList(response http.ResponseWriter, request *http.Request) {
 
 	sortOptions := request.Context().Value(constants.OptionsContextKey).(middleware.SortOptions)

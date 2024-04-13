@@ -23,6 +23,15 @@ func NewHandlerUser(services ServiceUser, logger logging.Logger) *HandlerUser {
 	}
 }
 
+// Create user
+// @Summary Create a new user
+// @Description Create a new user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param input body User true "Create user"
+// @Success 200 {integer} integer 1
+// @Router /api/create_user [post]
 func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Request) {
 
 	userIdToken, ok := request.Context().Value(constants.UserContextKey).(int)
@@ -38,15 +47,11 @@ func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Req
 
 	json.NewDecoder(request.Body).Decode(newUser)
 
-	//fmt.Println("Before validation", newUser)
-
 	if err := newUser.CreateUserValidate(); err != nil {
 		h.logger.Errorf("Failed to validate: invalid data to create a new user %s", err.Error())
 		errors.NewErrorClientResponse(response, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	//.Println("After validation", newUser)
 
 	newUserId, err := h.services.CreateUser(context.Background(), newUser)
 
@@ -68,6 +73,15 @@ func (h *HandlerUser) CreateUser(response http.ResponseWriter, request *http.Req
 
 }
 
+// login user
+// @Summary login user
+// @Description login user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param input body UserByUsernamePassword true "Create user"
+// @Success 200 {integer} integer 1
+// @Router /api/login_user [post]
 func (h *HandlerUser) LoginUser(response http.ResponseWriter, request *http.Request) {
 
 	userInput := &UserByUsernamePassword{}

@@ -1,13 +1,12 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample server Petstore server.",
-        "title": "Swagger Example API",
+        "description": "This is a sample service for managing orders",
+        "title": "Orders API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
+            "email": "soberkoder@gmail.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -15,12 +14,78 @@
         },
         "version": "1.0"
     },
-    "host": "petstore.swagger.io",
-    "basePath": "/v2",
+    "host": "localhost:8000",
+    "basePath": "/",
     "paths": {
-        "/api/cargos": {
+        "/api/create_car": {
+            "put": {
+                "description": "Update a car with the input paylod",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "car"
+                ],
+                "summary": "Update a car",
+                "parameters": [
+                    {
+                        "description": "Update car",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cars.CarUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
             "post": {
-                "description": "create cargo",
+                "description": "Create a new car with the input paylod",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "car"
+                ],
+                "summary": "create a new car",
+                "parameters": [
+                    {
+                        "description": "Create car",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cars.CarCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/create_cargo": {
+            "post": {
+                "description": "Create a new car with the input paylod",
                 "consumes": [
                     "application/json"
                 ],
@@ -30,8 +95,18 @@
                 "tags": [
                     "cargo"
                 ],
-                "summary": "CreateCargo",
-                "operationId": "create-cargo",
+                "summary": "Create a new cargo",
+                "parameters": [
+                    {
+                        "description": "Create cargo",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cargos.CargoCreateRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -39,6 +114,496 @@
                             "type": "integer"
                         }
                     }
+                }
+            }
+        },
+        "/api/create_location": {
+            "post": {
+                "description": "Create a new location with the input paylod",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "location"
+                ],
+                "summary": "Create a new location",
+                "parameters": [
+                    {
+                        "description": "Create location",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/locations.Location"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/create_user": {
+            "post": {
+                "description": "Create a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "Create user",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/download_file/{id}": {
+            "get": {
+                "description": "Get a file by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "file id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Downloading a file",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/get_cargo/{id}": {
+            "get": {
+                "description": "get all cargos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cargo"
+                ],
+                "summary": "Get list cargos with the closest cars",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "cargo id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cargos.CargoCarsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get_cargos": {
+            "get": {
+                "description": "get all cargos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cargo"
+                ],
+                "summary": "Get list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get_location/{id}": {
+            "get": {
+                "description": "Create a new location with the input paylod",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "location"
+                ],
+                "summary": "location id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Get location",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/locations.Location"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get_locations": {
+            "get": {
+                "description": "get all locations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "location"
+                ],
+                "summary": "Get list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/locations.Location"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login_user": {
+            "post": {
+                "description": "login user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "login user",
+                "parameters": [
+                    {
+                        "description": "Create user",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.UserByUsernamePassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/update_cargo/{id}": {
+            "put": {
+                "description": "Update a cargo by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "car"
+                ],
+                "summary": "Update a cargo",
+                "parameters": [
+                    {
+                        "description": "Update car",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cargos.CargoUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/upload_locs_from_file/{id}": {
+            "post": {
+                "description": "Uploading a list of locations from the file with zips",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "upload list locations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Uploding locations",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "cargos.CarResponse": {
+            "type": "object",
+            "properties": {
+                "car_location": {
+                    "$ref": "#/definitions/locations.Location"
+                },
+                "car_name": {
+                    "type": "string"
+                },
+                "load_capacity": {
+                    "type": "integer"
+                },
+                "unique_number": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "integer"
+                }
+            }
+        },
+        "cargos.CargoCarsResponse": {
+            "type": "object",
+            "properties": {
+                "cargo_name": {
+                    "type": "string"
+                },
+                "cars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cargos.CarResponse"
+                    }
+                },
+                "delivery_loc": {
+                    "$ref": "#/definitions/locations.Location"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "pickup_loc": {
+                    "$ref": "#/definitions/locations.Location"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "cargos.CargoCreateRequest": {
+            "type": "object",
+            "properties": {
+                "cargo_name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                },
+                "zip_delivery": {
+                    "type": "integer"
+                },
+                "zip_pickup": {
+                    "type": "integer"
+                }
+            }
+        },
+        "cargos.CargoUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "cars.CarCreateRequest": {
+            "type": "object",
+            "properties": {
+                "car_name": {
+                    "type": "string"
+                },
+                "load_capacity": {
+                    "type": "integer"
+                },
+                "unique_number": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "integer"
+                }
+            }
+        },
+        "cars.CarUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "car_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "load_capacity": {
+                    "type": "integer"
+                },
+                "unique_number": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "integer"
+                }
+            }
+        },
+        "locations.Location": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.User": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
+                },
+                "updated at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "users.UserByUsernamePassword": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         }

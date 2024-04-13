@@ -1,24 +1,153 @@
-basePath: /v2
-host: petstore.swagger.io
+basePath: /
+definitions:
+  cargos.CarResponse:
+    properties:
+      car_location:
+        $ref: '#/definitions/locations.Location'
+      car_name:
+        type: string
+      load_capacity:
+        type: integer
+      unique_number:
+        type: string
+      zip:
+        type: integer
+    type: object
+  cargos.CargoCarsResponse:
+    properties:
+      cargo_name:
+        type: string
+      cars:
+        items:
+          $ref: '#/definitions/cargos.CarResponse'
+        type: array
+      delivery_loc:
+        $ref: '#/definitions/locations.Location'
+      description:
+        type: string
+      id:
+        type: integer
+      pickup_loc:
+        $ref: '#/definitions/locations.Location'
+      weight:
+        type: integer
+    type: object
+  cargos.CargoCreateRequest:
+    properties:
+      cargo_name:
+        type: string
+      description:
+        type: string
+      weight:
+        type: integer
+      zip_delivery:
+        type: integer
+      zip_pickup:
+        type: integer
+    type: object
+  cargos.CargoUpdateRequest:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      weight:
+        type: integer
+    type: object
+  cars.CarCreateRequest:
+    properties:
+      car_name:
+        type: string
+      load_capacity:
+        type: integer
+      unique_number:
+        type: string
+      zip:
+        type: integer
+    type: object
+  cars.CarUpdateRequest:
+    properties:
+      car_name:
+        type: string
+      id:
+        type: integer
+      load_capacity:
+        type: integer
+      unique_number:
+        type: string
+      zip:
+        type: integer
+    type: object
+  locations.Location:
+    properties:
+      city:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      state:
+        type: string
+      zip:
+        type: integer
+    type: object
+  users.User:
+    properties:
+      age:
+        type: integer
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      surname:
+        type: string
+      updated at:
+        type: string
+      username:
+        type: string
+    type: object
+  users.UserByUsernamePassword:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8000
 info:
   contact:
-    email: support@swagger.io
+    email: soberkoder@gmail.com
     name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample server Petstore server.
+  description: This is a sample service for managing orders
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Swagger Example API
+  title: Orders API
   version: "1.0"
 paths:
-  /api/cargos:
+  /api/create_car:
     post:
       consumes:
       - application/json
-      description: create cargo
-      operationId: create-cargo
+      description: Create a new car with the input paylod
+      parameters:
+      - description: Create car
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/cars.CarCreateRequest'
       produces:
       - application/json
       responses:
@@ -26,7 +155,246 @@ paths:
           description: OK
           schema:
             type: integer
-      summary: CreateCargo
+      summary: create a new car
+      tags:
+      - car
+    put:
+      consumes:
+      - application/json
+      description: Update a car with the input paylod
+      parameters:
+      - description: Update car
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/cars.CarUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Update a car
+      tags:
+      - car
+  /api/create_cargo:
+    post:
+      consumes:
+      - application/json
+      description: Create a new car with the input paylod
+      parameters:
+      - description: Create cargo
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/cargos.CargoCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Create a new cargo
       tags:
       - cargo
+  /api/create_location:
+    post:
+      consumes:
+      - application/json
+      description: Create a new location with the input paylod
+      parameters:
+      - description: Create location
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/locations.Location'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Create a new location
+      tags:
+      - location
+  /api/create_user:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: Create user
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Create a new user
+      tags:
+      - user
+  /api/download_file/{id}:
+    get:
+      description: Get a file by id
+      parameters:
+      - description: Downloading a file
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: file id
+      tags:
+      - file
+  /api/get_cargo/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get all cargos
+      parameters:
+      - description: cargo id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cargos.CargoCarsResponse'
+      summary: Get list cargos with the closest cars
+      tags:
+      - cargo
+  /api/get_cargos:
+    get:
+      consumes:
+      - application/json
+      description: get all cargos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: object
+            type: array
+      summary: Get list
+      tags:
+      - cargo
+  /api/get_location/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Create a new location with the input paylod
+      parameters:
+      - description: Get location
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/locations.Location'
+      summary: location id
+      tags:
+      - location
+  /api/get_locations:
+    get:
+      consumes:
+      - application/json
+      description: get all locations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/locations.Location'
+              type: array
+            type: array
+      summary: Get list
+      tags:
+      - location
+  /api/login_user:
+    post:
+      consumes:
+      - application/json
+      description: login user
+      parameters:
+      - description: Create user
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/users.UserByUsernamePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: login user
+      tags:
+      - user
+  /api/update_cargo/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a cargo by id
+      parameters:
+      - description: Update car
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/cargos.CargoUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Update a cargo
+      tags:
+      - car
+  /api/upload_locs_from_file/{id}:
+    post:
+      description: Uploading a list of locations from the file with zips
+      parameters:
+      - description: Uploding locations
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: upload list locations
+      tags:
+      - file
 swagger: "2.0"

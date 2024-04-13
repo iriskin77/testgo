@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/iriskin77/testgo/configs"
 	_ "github.com/iriskin77/testgo/docs"
+
 	"github.com/iriskin77/testgo/internal/cargos"
 	"github.com/iriskin77/testgo/internal/cars"
 	"github.com/iriskin77/testgo/internal/files"
@@ -16,24 +17,13 @@ import (
 	storage "github.com/iriskin77/testgo/pkg/db"
 	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-
-	httpSwagger "github.com/swaggo/http-swagger/v2"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-func RunServer(logger logging.Logger, postgres configs.ConfigPostgres, BindAddr string) (*http.Server, error) {
+func NewHttpServer(ctx context.Context, logger logging.Logger, postgres configs.ConfigPostgres, BindAddr string) (*http.Server, error) {
 
-	err := godotenv.Load()
-	if err != nil {
-		logger.Fatal("Error loading .env file")
-	}
-
-	logger.Info("config has been initialized")
-
-	// Инициализруем подключение к БД
-
-	ctx := context.Background()
+	// Connecting to db
 
 	db, err := storage.NewPostgresDB(ctx, postgres)
 
@@ -43,6 +33,7 @@ func RunServer(logger logging.Logger, postgres configs.ConfigPostgres, BindAddr 
 
 	logger.Info("db has been initialized")
 
+	// Initializing repository, services, handlers
 	repo := NewRepository(db, logger)
 	service := NewService(repo, logger)
 	h := NewHandler(service, logger)
@@ -50,34 +41,33 @@ func RunServer(logger logging.Logger, postgres configs.ConfigPostgres, BindAddr 
 	router := mux.NewRouter()
 
 	// Car handlers
-	router.HandleFunc("/api/cars", h.HandlerCar.CreateCar).Methods("POST")
+	router.HandleFunc("/api/create_car", h.HandlerCar.CreateCar).Methods("POST")
 	router.HandleFunc("/api/car/{id}", h.UpdateCarById).Methods("PUT")
 
 	// File handlers
 	router.HandleFunc("/api/files", h.UploadFile).Methods("POST")
-	router.HandleFunc("/api/file/{id}", h.DownloadFile).Methods("GET")
-	router.HandleFunc("/api/upload_file/{id}", h.BulkInsertLocations).Methods("PUT")
+	router.HandleFunc("/api/download_file/{id}", h.DownloadFile).Methods("GET")
+	router.HandleFunc("/api/upload_locs_from_file/{id}", h.BulkInsertLocations).Methods("POST")
 
 	// Location handlers
-	router.HandleFunc("/api/createlocation", h.CreateLocation).Methods("POST")
+	router.HandleFunc("/api/create_location", h.CreateLocation).Methods("POST")
 	router.HandleFunc("/api/get_location/{id}", h.GetLocationById).Methods("GET")
 	router.HandleFunc("/api/get_locations", middleware.SortMiddleware(h.GetLocationsList)).Methods("GET")
 
-	router.HandleFunc("/api/createcargo", h.CreateCargo).Methods("POST")
+	// Cargo handlers
+	router.HandleFunc("/api/create_cargo", h.CreateCargo).Methods("POST")
 	router.HandleFunc("/api/get_cargo/{id}", h.GetCargoByIDCars).Methods("GET")
 	router.HandleFunc("/api/get_cargos", h.GetListCargos).Methods("GET")
+	router.HandleFunc("/api/update_cargo/{id}", h.UpdateCargoById).Methods("PUT")
 
 	// User handlers
 	router.HandleFunc("/api/create_user", middleware.AuthMiddleware(h.CreateUser)).Methods("POST")
 	router.HandleFunc("/api/login_user", h.LoginUser).Methods("GET")
 
-	router.HandleFunc("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8000/swagger/doc.json"),
-	)).Methods("GET")
+	// swagger
+	router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 
 	logger.Info("handlers have been initialized")
-
-	logger.Info("starting API Server")
 
 	return &http.Server{
 		Addr:    BindAddr,

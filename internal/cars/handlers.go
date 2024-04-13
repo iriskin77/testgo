@@ -21,6 +21,15 @@ func NewHandlerCar(services ServiceCar, logger logging.Logger) *HandlerCar {
 	}
 }
 
+// CreateCar
+// @Summary create a new car
+// @Description Create a new car with the input paylod
+// @Tags car
+// @Accept  json
+// @Produce  json
+// @Param input body CarCreateRequest true "Create car"
+// @Success 200 {integer} integer 1
+// @Router /api/create_car [post]
 func (h *HandlerCar) CreateCar(response http.ResponseWriter, request *http.Request) {
 
 	newCar := &CarCreateRequest{}
@@ -47,6 +56,15 @@ func (h *HandlerCar) CreateCar(response http.ResponseWriter, request *http.Reque
 
 }
 
+// UpdateCar godoc
+// @Summary Update a car
+// @Description Update a car with the input paylod
+// @Tags car
+// @Accept  json
+// @Produce  json
+// @Param input body CarUpdateRequest true "Update car"
+// @Success 200 {integer} integer 1
+// @Router /api/create_car [put]
 func (h *HandlerCar) UpdateCarById(response http.ResponseWriter, request *http.Request) {
 
 	carUpdatedData := &CarUpdateRequest{}

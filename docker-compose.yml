@@ -16,11 +16,11 @@ services:
 
   db:
     image: postgres
-    networks:
-            new:
-                aliases:
-                    - database
-    container_name: "app_db"
+    # networks:
+    #         new:
+    #             aliases:
+    #                 - database
+    container_name: app_db
     volumes:
       - df:/var/lib/postgresql/data/
     restart: always
@@ -28,11 +28,11 @@ services:
       - .env
     ports:
     - "5432:5432"
-    healthcheck:
-      test: pg_isready -U pguser -d postgres
-      interval: 10s
-      timeout: 3s
-      retries: 5
+    # healthcheck:
+    #   test: pg_isready -U pguser -d postgres
+    #   interval: 10s
+    #   timeout: 3s
+    #   retries: 5
 
 
   # migrate:
@@ -48,8 +48,8 @@ services:
   #       depends_on:
   #           - db
 
-networks:
-      new:
+# networks:
+#       new:
 volumes:
   df:
 

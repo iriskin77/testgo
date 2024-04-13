@@ -2,7 +2,9 @@ package server
 
 import (
 	"context"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	_ "github.com/iriskin77/testgo/docs"
@@ -15,8 +17,8 @@ import (
 	storage "github.com/iriskin77/testgo/pkg/db"
 	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"github.com/spf13/viper"
 
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
@@ -43,8 +45,13 @@ func (s *APIServer) RunServer() error {
 
 	logger.Info("logger has been initialized")
 
-	if err := initConfig(); err != nil {
-		logger.Fatalf("error initialization config %s", err.Error())
+	// if err := initConfig(); err != nil {
+	// 	logger.Fatalf("error initialization config %s", err.Error())
+	// }
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
 
 	logger.Info("config has been initialized")
@@ -54,12 +61,12 @@ func (s *APIServer) RunServer() error {
 	ctx := context.Background()
 
 	db, err := storage.NewPostgresDB(ctx, storage.ConfigDB{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: viper.GetString("db.password"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
+		Host:     os.Getenv("POSTGRES_HOST"),
+		Port:     os.Getenv("POSTGRES_PORT"),
+		Username: os.Getenv("POSTGRES_USER"),
+		Password: os.Getenv("POSTGRES_PASSWORD"),
+		DBName:   os.Getenv("POSTGRES_DB"),
+		SSLMode:  os.Getenv("SSLMODE"),
 	})
 
 	if err != nil {
@@ -106,11 +113,13 @@ func (s *APIServer) RunServer() error {
 
 }
 
-func initConfig() error {
-	viper.AddConfigPath("/home/abc/Рабочий стол/welbexfile/configs")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
-}
+// func initConfig() error {
+// 	pathConfig, _ := filepath.Abs("configs")
+// 	fmt.Println(pathConfig)
+// 	viper.AddConfigPath(pathConfig)
+// 	viper.SetConfigName("config")
+// 	return viper.ReadInConfig()
+// }
 
 type Repository struct {
 	cars.RepositoryCar

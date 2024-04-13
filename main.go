@@ -6,11 +6,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/iriskin77/testgo/configs"
 	"github.com/iriskin77/testgo/pkg/logging"
 	"github.com/iriskin77/testgo/server"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 // @title Orders API
@@ -58,12 +62,28 @@ func RunServer() error {
 		return err
 	}
 
+	stopped := make(chan struct{})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+		<-sigint
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err = srv.Shutdown(ctx); err != nil {
+			logger.Error("HTTP Server Shutdown", zap.Error(err))
+		}
+		close(stopped)
+	}()
+
+	logger.Info("starting API Server...")
+
 	if err = srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		logger.Fatal("HTTP server ListenAndServe", err.Error())
 		return err
 	}
 
-	logger.Info("starting API Server")
+	<-stopped
+	logger.Info("Bye! Good day :)")
 
 	return nil
 }
